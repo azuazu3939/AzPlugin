@@ -1,0 +1,92 @@
+name: AzPlugin
+version: '1.0.0'
+main: com.github.azuazu3939.azPlugin.AzPlugin
+api-version: '1.21'
+authors: [ MCLove32 ]
+
+depend:
+  - MythicMobs
+  - Multiverse-Core
+  - WorldGuard
+  - LoreEditor
+  - packetevents
+
+commands:
+  worldregen:
+    permission: lifenewpve.command.worldregen
+    aliases:
+      - wr
+      - worldRegen
+  worldcreate:
+    permission: lifenewpve.command.worldcreate
+    aliases:
+      - wc
+      - worldCreate
+  worldteleport:
+    permission: lifenewpve.command.worldteleport
+    aliases:
+      - wt
+      - worldTeleport
+      - wsp
+      - ws
+  worldset:
+    permission: lifenewpve.command.worldset
+    aliases:
+      - wset
+      - wse
+      - wst
+  mode:
+    permission: lifenewpve.command.mode
+    aliases:
+      - md
+  setmana:
+    permission: lifenewpve.command.setmana
+    aliases:
+      - addmana
+      - addMana
+      - setMana
+      - sm
+  setmaxmana:
+    permission: lifenewpve.command.setmaxmana
+    aliases:
+      - smm
+  dungeon:
+    permission: lifenewpve.command.dungeon
+    aliases:
+      - dg
+
+permissions:
+  lifenewpve.*:
+    default: false
+    children:
+      lifenewpve.reload.mythicmobs: true
+      lifenewpve.command.*: true
+  lifenewpve.command.*:
+    default: false
+    children:
+      lifenewpve.command.setmaxmana: true
+      lifenewpve.command.setmana: true
+      lifenewpve.command.mode: true
+      lifenewpve.command.worldset: true
+      lifenewpve.command.worldteleport: true
+      lifenewpve.command.worldcreate: true
+      lifenewpve.command.worldregen: true
+      lifenewpve.command.dungeon: true
+  lifenewpve.reload.mythicmobs:
+    default: op
+  lifenewpve.command.setmaxmana:
+    default: op
+  lifenewpve.command.setmana:
+    default: op
+  lifenewpve.command.mode:
+    default: op
+  lifenewpve.command.worldset:
+    default: op
+  lifenewpve.command.worldteleport:
+    default: op
+  lifenewpve.command.worldcreate:
+    default: op
+  lifenewpve.command.worldregen:
+    default: op
+  lifenewpve.command.dungeon:
+    default: op
