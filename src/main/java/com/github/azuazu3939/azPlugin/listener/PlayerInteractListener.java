@@ -2,11 +2,7 @@ package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBLootChest;
-import com.github.azuazu3939.azPlugin.lib.VectorTask;
 import com.github.azuazu3939.azPlugin.util.Key;
-import com.github.azuazu3939.azPlugin.util.Utils;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -16,7 +12,6 @@ import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -34,22 +29,8 @@ public class PlayerInteractListener implements Listener {
 
     private static final Set<UUID> tempCancelled = new HashSet<>();
 
-    private static final Multimap<Class<?>, UUID> ct = HashMultimap.create();
-
     public PlayerInteractListener(AzPlugin plugin) {
         this.plugin = plugin;
-    }
-
-    @EventHandler
-    public void onInteract(@NotNull PlayerInteractEvent e) {
-        if (!e.getAction().equals(Action.PHYSICAL)) return;
-        Block block = e.getClickedBlock();
-        if (block == null) return;
-        Player player = e.getPlayer();
-        if (Utils.isCoolTime(getClass(), player.getUniqueId(), ct)) return;
-        Utils.setCoolTime(getClass(), player.getUniqueId(), ct, 20);
-        VectorTask.applyVelocityAndRunTask(player, player, VectorTask.getVector(block, player));
-
     }
 
     @EventHandler

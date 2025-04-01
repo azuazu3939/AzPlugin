@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/AzPlugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/AzPlugin.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/AzPlugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/AzPlugin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Project.AzPlugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Project.AzPlugin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Project.AzPlugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Project.AzPlugin.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.github.azuazu3939.AzPlugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.github.azuazu3939.AzPlugin.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.github.azuazu3939.AzPlugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/com.github.azuazu3939.AzPlugin.test.iml" />
     </modules>

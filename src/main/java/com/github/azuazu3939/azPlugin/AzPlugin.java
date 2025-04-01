@@ -5,6 +5,8 @@ import com.github.azuazu3939.azPlugin.database.DBCon;
 import com.github.azuazu3939.azPlugin.listener.*;
 import com.github.azuazu3939.azPlugin.mana.Mana;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
+import com.github.azuazu3939.azPlugin.unique.Skill;
+import com.github.azuazu3939.azPlugin.unique.armor.BlessingOfTheEarth;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
@@ -14,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -23,7 +26,6 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.Random;
 
 public final class AzPlugin extends JavaPlugin {
 
@@ -33,7 +35,6 @@ public final class AzPlugin extends JavaPlugin {
         return instance;
     }
 
-    public static final Random RANDOM = new Random();
 
     @Override
     public void onEnable() {
@@ -61,10 +62,10 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new ManaListener(this), this);
         pm.registerEvents(new MythicListener(), this);
         pm.registerEvents(new MythicDamageListener(), this);
+        pm.registerEvents(new UniqueSkillListener(), this);
         pm.registerEvents(new MythicDisplayListener(), this);
         pm.registerEvents(new MVWorldListener(this), this);
         pm.registerEvents(new EntityDamageListener(), this);
-        pm.registerEvents(new EntityInteractListener(), this);
         pm.registerEvents(new EatListener(this), this);
         pm.registerEvents(new LootChestListener(this), this);
         pm.registerEvents(new ResourceWorldListener(), this);
@@ -93,6 +94,7 @@ public final class AzPlugin extends JavaPlugin {
 
     private void registerLore() {
         EventBus.INSTANCE.register(this, ItemEvent.class, 0, e -> {
+            uniqueRegister(e);
             manaRegister(e);
             weaponRegister(e);
         });
@@ -101,6 +103,7 @@ public final class AzPlugin extends JavaPlugin {
     private void onlinePlayer() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             new ManaRegen(player).start();
+            BlessingOfTheEarth.System.addMember(player);
         });
     }
 
@@ -129,6 +132,16 @@ public final class AzPlugin extends JavaPlugin {
         e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(""));
         e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§7装備したとき："));
         e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(manaMessage));
+    }
+
+    private void uniqueRegister(@NotNull ItemEvent e) {
+        ItemStack item = e.getBukkitItem();
+        Player p = e.getPlayer();
+        Skill.getSkills(item).forEach(s -> {
+            int i = Skill.getItemLevel(item, s.getKey());
+            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(s.getString(i, p)));
+            s.getLore().forEach(l -> e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(l)));
+        });
     }
 
     private double getItemMana(@NotNull ItemStack item) {

@@ -17,12 +17,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Random;
+
 public class DungeonCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (!(commandSender instanceof Player player)) return false;
-        int i = AzPlugin.RANDOM.nextInt(7) + 1;
+        int i = new Random().nextInt(7) + 1;
         org.bukkit.World w = Bukkit.getWorld("oak_wood_land");
         if (w == null) return false;
         World world = BukkitAdapter.adapt(w);
