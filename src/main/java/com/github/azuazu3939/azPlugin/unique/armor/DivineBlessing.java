@@ -17,8 +17,8 @@ public class DivineBlessing extends Skill {
     private final List<String> list = new ArrayList<>();
 
     public DivineBlessing() {
-        super(new NamespacedKey("az", "divine_blessing"), 5);
-        list.add("&f・被弾時に確率でダメージを軽減する");
+        super(new NamespacedKey("az", "divine_blessing"), 4);
+        list.add("§f・被弾時に確率でダメージを軽減する");
     }
 
     @Override
@@ -28,13 +28,13 @@ public class DivineBlessing extends Skill {
 
     @Override
     public String getName() {
-        return "&a&l精霊の加護";
+        return "§a§l精霊の加護";
     }
 
     public static class System extends DivineBlessing {
 
         final int chance = 30;
-        final double protect = 0.1;
+        final double protect = 0.2;
 
         private final Player player;
 

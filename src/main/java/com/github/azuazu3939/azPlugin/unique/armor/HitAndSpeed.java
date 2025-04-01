@@ -18,8 +18,8 @@ public class HitAndSpeed extends Skill {
     private final List<String> list = new ArrayList<>();
 
     public HitAndSpeed() {
-        super(new NamespacedKey("az", "hit_and_speed"), 3);
-        list.add("&f・攻撃時に自身のスピードを上昇させる");
+        super(new NamespacedKey("az", "hit_and_speed"), 4);
+        list.add("§f・攻撃時に自身のスピードを上昇させる");
     }
 
     @Override
@@ -29,12 +29,12 @@ public class HitAndSpeed extends Skill {
 
     @Override
     public String getName() {
-        return "&a&lボルテージ";
+        return "§a§lボルテージ";
     }
 
     public static class System extends HitAndSpeed {
 
-        int tick = 200;
+        int tick = 300;
 
         private static final Multimap<Class<?>, UUID> multimap = HashMultimap.create();
 

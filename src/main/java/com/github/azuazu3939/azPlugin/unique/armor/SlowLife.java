@@ -17,7 +17,7 @@ public class SlowLife extends Skill {
 
     public SlowLife() {
         super(new NamespacedKey("az", "slow_life"), 3);
-        list.add("&f・HP回復効果量を上昇させる");
+        list.add("§f・HP回復効果量を上昇させる");
     }
 
     @Override
@@ -27,7 +27,7 @@ public class SlowLife extends Skill {
 
     @Override
     public String getName() {
-        return "スローライフ";
+        return "§e§lスローライフ";
     }
 
     public static class System extends SlowLife {

@@ -3,6 +3,7 @@ package com.github.azuazu3939.azPlugin.listener;
 import com.github.azuazu3939.azPlugin.unique.armor.*;
 import io.lumine.mythic.bukkit.events.MythicDamageEvent;
 import io.lumine.mythic.bukkit.events.MythicHealMechanicEvent;
+import io.lumine.mythic.bukkit.utils.events.extra.ArmorEquipEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -35,7 +36,11 @@ public class UniqueSkillListener implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(@NotNull PlayerJoinEvent event) {
-        BlessingOfTheEarth.System.addMember(event.getPlayer());
+        Player player = event.getPlayer();
+
+        BlessingOfTheEarth.System.addMember(player);
+        new Defence.System(player).apply();
+        new Offense.System(player).apply();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -55,5 +60,19 @@ public class UniqueSkillListener implements Listener {
         if (new SpeedHolder.System(p).apply()) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    public void onEquip(@NotNull ArmorEquipEvent event) {
+        Player player = event.getPlayer();
+
+        BlessingOfTheEarth.System.removeMember(player.getUniqueId());
+        BlessingOfTheEarth.System.addMember(player);
+
+        new Defence.System(player).unset();
+        new Defence.System(player).apply();
+
+        new Offense.System(player).unset();
+        new Offense.System(player).apply();
     }
 }

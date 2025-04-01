@@ -6,6 +6,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -25,4 +26,8 @@ public interface SkillBase {
 
     @Nullable
     String getData(ItemStack stack, NamespacedKey key);
+
+    List<String> getLore();
+
+    String getName();
 }

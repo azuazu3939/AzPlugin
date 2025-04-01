@@ -17,8 +17,8 @@ public class BlessingOfTheEarth extends Skill {
     private final List<String> list = new ArrayList<>();
 
     public BlessingOfTheEarth() {
-        super(new NamespacedKey("az", "blessing_of_the_earth"), 1);
-        list.add("&f・地面にいるとき僅かな恩恵を受ける");
+        super(new NamespacedKey("az", "ground_reaction_force"), 3);
+        list.add("§f・地面にいるときスピード上昇を受ける");
     }
 
     @Override
@@ -28,14 +28,14 @@ public class BlessingOfTheEarth extends Skill {
 
     @Override
     public String getName() {
-        return "&6&l大地の加護";
+        return "§6§l地面反力";
     }
 
 
     public static class System extends BlessingOfTheEarth {
 
 
-        public static final int tick = 100;
+        public static final int tick = 400;
 
         private static final Map<UUID, Integer> BukkitTasks = new HashMap<>();
 
@@ -43,7 +43,9 @@ public class BlessingOfTheEarth extends Skill {
             int i = getLevel(player);
             if (i == 0) return;
             if (!player.isOnGround()) return;
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, i - 1, true, false, true));
+            Bukkit.getScheduler().runTask(AzPlugin.getInstance(), () -> {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, i - 1, true, false, true));
+            });
         }
 
         public static void addMember(@NotNull Player player) {

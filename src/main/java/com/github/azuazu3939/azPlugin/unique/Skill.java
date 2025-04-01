@@ -14,13 +14,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("StaticInitializerReferencesSubClass")
-public abstract class Skill implements SkillBase, SkillLore {
+public abstract class Skill implements SkillBase {
 
     public static final Skill BLESSING_OF_THE_EARTH = new BlessingOfTheEarth();
     public static final Skill DIVINE_BLESSING = new DivineBlessing();
     public static final Skill HIT_AND_SPEED = new HitAndSpeed();
     public static final Skill SLOW_SPEED = new SlowLife();
     public static final Skill SPEED_HOLDER = new SpeedHolder();
+    public static final Skill DEFENCE = new Defence();
 
     public static List<Skill> SKILLS = new ArrayList<>();
 
@@ -30,6 +31,7 @@ public abstract class Skill implements SkillBase, SkillLore {
         SKILLS.add(HIT_AND_SPEED);
         SKILLS.add(SLOW_SPEED);
         SKILLS.add(SPEED_HOLDER);
+        SKILLS.add(DEFENCE);
     }
 
     @Nullable
@@ -37,11 +39,8 @@ public abstract class Skill implements SkillBase, SkillLore {
         return SKILLS.stream().filter(skill -> skill.getKey().getKey().equals(key.getKey())).findFirst().orElse(null);
     }
 
-    public static int getItemLevel(ItemStack item, NamespacedKey key) {
-        Skill s = Skill.of(key);
-        if (s == null) return -1;
-
-        String data = s.getData(item, key);
+    public static int getItemLevel(@NotNull Skill s, ItemStack item) {
+        String data = s.getData(item, s.getKey());
         if (data == null) return -1;
         try {
             return Integer.parseInt(data);
@@ -106,9 +105,7 @@ public abstract class Skill implements SkillBase, SkillLore {
                 EquipmentSlot.HEAD,
                 EquipmentSlot.CHEST,
                 EquipmentSlot.LEGS,
-                EquipmentSlot.FEET,
-                EquipmentSlot.HAND,
-                EquipmentSlot.OFF_HAND
+                EquipmentSlot.FEET
         ));
     }
 

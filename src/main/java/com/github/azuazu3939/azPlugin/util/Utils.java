@@ -64,7 +64,7 @@ public class Utils {
     public static void addAttribute(@NotNull Player player, @NotNull Attribute attribute, AttributeModifier modifier) {
         AttributeInstance attr = player.getAttribute(attribute);
         if (attr == null) return;
-        attr.getModifiers().add(modifier);
+        attr.addModifier(modifier);
     }
 
     public static double getDataContainerDouble(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type) {

@@ -7,6 +7,7 @@ import com.github.azuazu3939.azPlugin.mana.Mana;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
 import com.github.azuazu3939.azPlugin.unique.Skill;
 import com.github.azuazu3939.azPlugin.unique.armor.BlessingOfTheEarth;
+import com.github.azuazu3939.azPlugin.unique.armor.Defence;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
@@ -104,6 +105,7 @@ public final class AzPlugin extends JavaPlugin {
         Bukkit.getOnlinePlayers().forEach(player -> {
             new ManaRegen(player).start();
             BlessingOfTheEarth.System.addMember(player);
+            new Defence.System(player).apply();
         });
     }
 
@@ -138,8 +140,9 @@ public final class AzPlugin extends JavaPlugin {
         ItemStack item = e.getBukkitItem();
         Player p = e.getPlayer();
         Skill.getSkills(item).forEach(s -> {
-            int i = Skill.getItemLevel(item, s.getKey());
+            int i = Skill.getItemLevel(s, item);
             if (i == -1) return;
+            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§f"));
             e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(s.getName() + " " + s.getString(i, p)));
             s.getLore().forEach(l -> e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(l)));
         });

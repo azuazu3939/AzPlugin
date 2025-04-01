@@ -19,7 +19,7 @@ public class SpeedHolder extends Skill {
 
     public SpeedHolder() {
         super(new NamespacedKey("az", "speed_holder"), 1);
-        list.add("&f・スピードに応じて確率で被ダメを無効化する");
+        list.add("§f・スピードに応じて確率で被ダメを無効化する");
     }
 
     @Override
@@ -29,7 +29,7 @@ public class SpeedHolder extends Skill {
 
     @Override
     public String getName() {
-        return "回避術";
+        return "§d§l回避術";
     }
 
     public static class System extends SpeedHolder {

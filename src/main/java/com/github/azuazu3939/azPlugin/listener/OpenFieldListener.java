@@ -14,7 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class OpenFieldListener implements Listener {
 
-    private final NamespacedKey step = new NamespacedKey("rc", "default-step-height");
+    private final NamespacedKey step = new NamespacedKey("az", "default-step-height");
 
     public double stepAmount = 0.5;
 
