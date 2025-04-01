@@ -139,7 +139,8 @@ public final class AzPlugin extends JavaPlugin {
         Player p = e.getPlayer();
         Skill.getSkills(item).forEach(s -> {
             int i = Skill.getItemLevel(item, s.getKey());
-            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(s.getString(i, p)));
+            if (i == -1) return;
+            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(s.getName() + " " + s.getString(i, p)));
             s.getLore().forEach(l -> e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(l)));
         });
     }

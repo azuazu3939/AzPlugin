@@ -9,7 +9,6 @@ depend:
   - Multiverse-Core
   - WorldGuard
   - LoreEditor
-  - packetevents
 
 commands:
   worldregen:
