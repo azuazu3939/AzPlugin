@@ -34,7 +34,7 @@ public abstract class Skill implements SkillBase, SkillLore {
 
     @Nullable
     public static Skill of(NamespacedKey key) {
-        return SKILLS.stream().filter(skill -> skill.getKey().equals(key)).findFirst().orElse(null);
+        return SKILLS.stream().filter(skill -> skill.getKey().getKey().equals(key.getKey())).findFirst().orElse(null);
     }
 
     public static int getItemLevel(ItemStack item, NamespacedKey key) {
