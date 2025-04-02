@@ -2,7 +2,6 @@ package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBLootChest;
-import com.github.azuazu3939.azPlugin.util.Key;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -83,7 +82,7 @@ public class PlayerInteractListener implements Listener {
 
     @Nullable
     private String hasChestReward(@NotNull Chest chest) {
-        NamespacedKey key = new Key(plugin).getOrCreate("loot_chest");
+        NamespacedKey key = new NamespacedKey("az", "loot_chest");
         if (!chest.getPersistentDataContainer().has(key)) return null;
 
         return chest.getPersistentDataContainer().get(key, PersistentDataType.STRING);

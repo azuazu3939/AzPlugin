@@ -5,7 +5,6 @@ import com.github.azuazu3939.azPlugin.event.ManaModifiedEvent;
 import com.github.azuazu3939.azPlugin.event.ManaModifyEvent;
 import com.github.azuazu3939.azPlugin.mana.Mana;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
-import com.github.azuazu3939.azPlugin.util.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.boss.BarColor;
@@ -116,7 +115,7 @@ public class ManaListener implements Listener {
 
     public void createBossBar(@NotNull Player player) {
         UUID playerId = player.getUniqueId();
-        NamespacedKey key = new Key(plugin).getOrCreate(playerId.toString().toLowerCase());
+        NamespacedKey key = new NamespacedKey("az", playerId.toString().toLowerCase());
         KeyedBossBar keyedBossBar = Bukkit.createBossBar(key, createBossBarTitle(player), BarColor.BLUE, BarStyle.SEGMENTED_10);
         barFlags(keyedBossBar, player);
         bossBarMap.put(playerId, keyedBossBar);

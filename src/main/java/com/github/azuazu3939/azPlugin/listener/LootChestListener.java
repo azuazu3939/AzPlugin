@@ -1,10 +1,9 @@
 package com.github.azuazu3939.azPlugin.listener;
 
-import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.util.Key;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -16,12 +15,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 public class LootChestListener implements Listener {
-
-    private final AzPlugin plugin;
-
-    public LootChestListener(AzPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     @EventHandler
     public void onBlockPlace(@NotNull BlockPlaceEvent e) {
@@ -39,7 +32,7 @@ public class LootChestListener implements Listener {
         if (!mmid.contains("ルートチェスト")) return;
 
         Chest chest = (Chest) b.getState();
-        chest.getPersistentDataContainer().set(new Key(plugin).getOrCreate("loot_chest"), PersistentDataType.STRING, "true");
+        chest.getPersistentDataContainer().set(new NamespacedKey("az", "loot_chest"), PersistentDataType.STRING, "true");
         chest.update();
     }
 }

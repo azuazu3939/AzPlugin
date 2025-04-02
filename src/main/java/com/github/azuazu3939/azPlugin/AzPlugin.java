@@ -35,7 +35,7 @@ public final class AzPlugin extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        registerDB();
+        //registerDB();
         registerListeners();
         registerCommands();
 
@@ -49,7 +49,7 @@ public final class AzPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         ManaListener.removeAll();
-        DBCon.close();
+        //DBCon.close();
     }
 
     private void registerListeners() {
@@ -62,7 +62,7 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new MVWorldListener(this), this);
         pm.registerEvents(new EntityDamageListener(), this);
         pm.registerEvents(new EatListener(this), this);
-        pm.registerEvents(new LootChestListener(this), this);
+        pm.registerEvents(new LootChestListener(), this);
         pm.registerEvents(new ResourceWorldListener(), this);
         pm.registerEvents(new PlayerInteractListener(this), this);
         pm.registerEvents(new PlayerWorldChangeListener(), this);
