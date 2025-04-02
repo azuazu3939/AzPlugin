@@ -66,8 +66,7 @@ public class Lore {
             e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§bマナ +" + mana));
         }
         if (manaRegen > 0) {
-            double d = manaRegen * 2;
-            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§dマナ回復 +" + d + "§f/§d1s"));
+            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§dマナ回復 +" + manaRegen + "§f/§d1s"));
         }
     }
 }

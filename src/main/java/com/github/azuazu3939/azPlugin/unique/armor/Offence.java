@@ -11,12 +11,12 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Offense extends Skill {
+public class Offence extends Skill {
 
     private final List<String> list = new ArrayList<>();
 
-    public Offense() {
-        super(new NamespacedKey("az", "offense"), 5);
+    public Offence() {
+        super(new NamespacedKey("az", "offence"), 5);
         list.add("§f・自身の攻撃力を上げる");
     }
 
@@ -30,7 +30,7 @@ public class Offense extends Skill {
         return "§c§l攻撃力上昇";
     }
 
-    public static class System extends Offense {
+    public static class System extends Offence {
 
         final int multipleLevel = 3;
         final double multiple = 1.01;

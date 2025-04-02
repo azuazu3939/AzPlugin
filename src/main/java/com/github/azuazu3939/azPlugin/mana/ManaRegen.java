@@ -24,9 +24,9 @@ public class ManaRegen extends Mana {
     public double getBaseRegen() {return regen;}
 
     public double getFinalRegen() {
-        return getBaseRegen()
+        return (getBaseRegen()
                 + Utils.getDataContainerDouble(player, MANA_REGEN, PersistentDataType.STRING, Utils.getAllSlots())
-                + Utils.getPlayerDataContainerDouble(player, MANA_REGEN, PersistentDataType.STRING, 0.0);
+                + Utils.getPlayerDataContainerDouble(player, MANA_REGEN, PersistentDataType.STRING, 0.0)) / 2.0;
     }
 
     public ManaRegen(Player player) {

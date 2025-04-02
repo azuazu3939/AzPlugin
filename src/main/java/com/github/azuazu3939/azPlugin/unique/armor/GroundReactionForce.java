@@ -12,11 +12,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class BlessingOfTheEarth extends Skill {
+public class GroundReactionForce extends Skill {
 
     private final List<String> list = new ArrayList<>();
 
-    public BlessingOfTheEarth() {
+    public GroundReactionForce() {
         super(new NamespacedKey("az", "ground_reaction_force"), 3);
         list.add("§f・地面にいるときスピード上昇を受ける");
     }
@@ -32,7 +32,7 @@ public class BlessingOfTheEarth extends Skill {
     }
 
 
-    public static class System extends BlessingOfTheEarth {
+    public static class System extends GroundReactionForce {
 
 
         public static final int tick = 400;
@@ -49,7 +49,7 @@ public class BlessingOfTheEarth extends Skill {
 
         public static void addMember(@NotNull Player player) {
             BukkitTask t = AzPlugin.getInstance().runAsyncTimer(() ->
-                    new BlessingOfTheEarth.System().apply(player), System.tick, System.tick);
+                    new GroundReactionForce.System().apply(player), 100, 100);
             BukkitTasks.put(player.getUniqueId(), t.getTaskId());
         }
 

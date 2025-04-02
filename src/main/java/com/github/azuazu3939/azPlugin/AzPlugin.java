@@ -5,8 +5,9 @@ import com.github.azuazu3939.azPlugin.database.DBCon;
 import com.github.azuazu3939.azPlugin.lib.Lore;
 import com.github.azuazu3939.azPlugin.listener.*;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
-import com.github.azuazu3939.azPlugin.unique.armor.BlessingOfTheEarth;
+import com.github.azuazu3939.azPlugin.unique.armor.GroundReactionForce;
 import com.github.azuazu3939.azPlugin.unique.armor.Defence;
+import com.github.azuazu3939.azPlugin.unique.armor.Offence;
 import com.onarandombox.MultiverseCore.MultiverseCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -89,8 +90,13 @@ public final class AzPlugin extends JavaPlugin {
     private void onlinePlayer() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             new ManaRegen(player).start();
-            BlessingOfTheEarth.System.addMember(player);
+            GroundReactionForce.System.addMember(player);
+
+            new Defence.System(player).unset();
             new Defence.System(player).apply();
+
+            new Offence.System(player).unset();
+            new Offence.System(player).apply();
         });
     }
 

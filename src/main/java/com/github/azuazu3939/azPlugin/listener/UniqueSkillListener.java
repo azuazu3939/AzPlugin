@@ -38,14 +38,17 @@ public class UniqueSkillListener implements Listener {
     public void onJoin(@NotNull PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        BlessingOfTheEarth.System.addMember(player);
+        GroundReactionForce.System.addMember(player);
+        new Defence.System(player).unset();
         new Defence.System(player).apply();
-        new Offense.System(player).apply();
+
+        new Offence.System(player).unset();
+        new Offence.System(player).apply();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(@NotNull PlayerQuitEvent event) {
-        BlessingOfTheEarth.System.removeMember(event.getPlayer().getUniqueId());
+        GroundReactionForce.System.removeMember(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -66,13 +69,13 @@ public class UniqueSkillListener implements Listener {
     public void onEquip(@NotNull ArmorEquipEvent event) {
         Player player = event.getPlayer();
 
-        BlessingOfTheEarth.System.removeMember(player.getUniqueId());
-        BlessingOfTheEarth.System.addMember(player);
+        GroundReactionForce.System.removeMember(player.getUniqueId());
+        GroundReactionForce.System.addMember(player);
 
         new Defence.System(player).unset();
         new Defence.System(player).apply();
 
-        new Offense.System(player).unset();
-        new Offense.System(player).apply();
+        new Offence.System(player).unset();
+        new Offence.System(player).apply();
     }
 }
