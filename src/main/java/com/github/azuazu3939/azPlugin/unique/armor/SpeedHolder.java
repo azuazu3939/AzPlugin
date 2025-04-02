@@ -4,6 +4,7 @@ import com.github.azuazu3939.azPlugin.unique.Skill;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -35,20 +36,19 @@ public class SpeedHolder extends Skill {
     public static class System extends SpeedHolder {
 
         int value = 5;
-        int applyLimitAmplifier = 2;
+        int applyLimitAmplifier = 3;
 
         private static final Multimap<Class<?>, UUID> multimap = HashMultimap.create();
 
         private final Player player;
 
         public System(Player player) {
-            super();
             this.player = player;
         }
 
         public boolean apply() {
             if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return false;
-            Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 20);
+            Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 60);
 
             if (player.hasPotionEffect(PotionEffectType.SLOWNESS)) return false;
             if (!player.hasPotionEffect(PotionEffectType.SPEED)) return false;
@@ -60,11 +60,15 @@ public class SpeedHolder extends Skill {
             if (i == 0) return false;
 
             int l = Math.min(e.getAmplifier(), applyLimitAmplifier);
-            return getRandom().nextInt(100) < multiple(l) * value;
+            boolean b = getRandom().nextInt(100) < multiple(l) * value;
+            if (b) {
+                player.sendActionBar(Component.text("回避術が発動しました"));
+            }
+            return b;
         }
 
         private double multiple(double i) {
-            return Math.pow(2, (i));
+            return Math.pow(2, (i - 1));
         }
     }
 }

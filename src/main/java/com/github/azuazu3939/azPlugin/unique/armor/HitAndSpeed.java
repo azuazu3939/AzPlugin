@@ -4,6 +4,7 @@ import com.github.azuazu3939.azPlugin.unique.Skill;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
@@ -46,7 +47,7 @@ public class HitAndSpeed extends Skill {
 
         public void apply() {
             if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return;
-            Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 10);
+            Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 5);
 
             int i = getLevel(player);
             if (i == 0) return;
@@ -59,6 +60,7 @@ public class HitAndSpeed extends Skill {
             }
 
             int check = Math.min(now + 1, i - 1);
+            player.sendActionBar(Component.text("ボルテージが発動しました"));
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, check, true, false, true));
         }
     }

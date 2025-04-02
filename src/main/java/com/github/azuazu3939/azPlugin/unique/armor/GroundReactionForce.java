@@ -2,6 +2,7 @@ package com.github.azuazu3939.azPlugin.unique.armor;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.unique.Skill;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -39,17 +40,25 @@ public class GroundReactionForce extends Skill {
 
         private static final Map<UUID, Integer> BukkitTasks = new HashMap<>();
 
-        public void apply(Player player) {
+        private final Player player;
+
+        public System(Player player) {
+            this.player = player;
+        }
+
+        public void apply() {
             int i = getLevel(player);
             if (i == 0) return;
             if (!player.isOnGround()) return;
-            Bukkit.getScheduler().runTask(AzPlugin.getInstance(), () ->
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, i - 1, true, false, true)));
+            Bukkit.getScheduler().runTask(AzPlugin.getInstance(), () -> {
+                player.sendActionBar(Component.text("地面反力が発動しました"));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, i - 1, true, false, true));
+            });
         }
 
         public static void addMember(@NotNull Player player) {
             BukkitTask t = AzPlugin.getInstance().runAsyncTimer(() ->
-                    new GroundReactionForce.System().apply(player), 100, 100);
+                    new GroundReactionForce.System(player).apply(), 100, 100);
             BukkitTasks.put(player.getUniqueId(), t.getTaskId());
         }
 

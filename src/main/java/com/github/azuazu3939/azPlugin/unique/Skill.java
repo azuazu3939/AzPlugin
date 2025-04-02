@@ -14,24 +14,32 @@ import java.util.*;
 @SuppressWarnings("StaticInitializerReferencesSubClass")
 public abstract class Skill implements SkillBase {
 
-    public static final Skill BLESSING_OF_THE_EARTH = new GroundReactionForce();
+    public static final Skill GROUND_REACTION_FORCE = new GroundReactionForce();
     public static final Skill DIVINE_BLESSING = new DivineBlessing();
     public static final Skill HIT_AND_SPEED = new HitAndSpeed();
     public static final Skill SLOW_SPEED = new SlowLife();
     public static final Skill SPEED_HOLDER = new SpeedHolder();
     public static final Skill DEFENCE = new Defence();
     public static final Skill OFFENCE = new Offence();
+    public static final Skill HIGH_POISON = new HighPoison();
+    public static final Skill BAD_STATUS_HUNTER = new BadStatusHunter();
+    public static final Skill SPEED_MASTER = new SpeedMaster();
+    public static final Skill FLYING_HUNTER = new FlyingHunter();
 
     private static final List<Skill> SKILLS = new ArrayList<>();
 
     static {
-        SKILLS.add(BLESSING_OF_THE_EARTH);
+        SKILLS.add(GROUND_REACTION_FORCE);
         SKILLS.add(DIVINE_BLESSING);
         SKILLS.add(HIT_AND_SPEED);
         SKILLS.add(SLOW_SPEED);
         SKILLS.add(SPEED_HOLDER);
         SKILLS.add(DEFENCE);
         SKILLS.add(OFFENCE);
+        SKILLS.add(HIGH_POISON);
+        SKILLS.add(BAD_STATUS_HUNTER);
+        SKILLS.add(SPEED_MASTER);
+        SKILLS.add(FLYING_HUNTER);
     }
 
     @Nullable

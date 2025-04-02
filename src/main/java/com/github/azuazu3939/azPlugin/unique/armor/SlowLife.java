@@ -1,15 +1,12 @@
 package com.github.azuazu3939.azPlugin.unique.armor;
 
 import com.github.azuazu3939.azPlugin.unique.Skill;
-import com.github.azuazu3939.azPlugin.util.Utils;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class SlowLife extends Skill {
 
@@ -34,8 +31,6 @@ public class SlowLife extends Skill {
 
         final double value = 0.25;
 
-        private static final Multimap<Class<?>, UUID> multimap = HashMultimap.create();
-
         private final Player player;
 
         public System(Player player) {
@@ -43,12 +38,10 @@ public class SlowLife extends Skill {
         }
 
         public double apply(double heal) {
-            if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return heal;
-            Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 10);
-
             double i = getLevel(player);
             if (i == 0) return heal;
 
+            player.sendActionBar(Component.text("スローライフが発動しました"));
             return heal * (1 + value * multiple(i));
         }
 
