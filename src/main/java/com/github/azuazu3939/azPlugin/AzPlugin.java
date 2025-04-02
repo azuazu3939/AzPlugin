@@ -23,12 +23,10 @@ import java.util.Objects;
 public final class AzPlugin extends JavaPlugin {
 
     private static AzPlugin instance;
-    private static Lore LORE;
 
     public static AzPlugin getInstance() {
         return instance;
     }
-    public static Lore getLore() {return LORE;}
 
     @Override
     public void onEnable() {
@@ -42,8 +40,8 @@ public final class AzPlugin extends JavaPlugin {
         MythicListener.reloadMythic(20);
         onlinePlayer();
 
-        LORE = new Lore(this);
-        LORE.register();
+        new Lore(this).register();
+
     }
 
     @Override
