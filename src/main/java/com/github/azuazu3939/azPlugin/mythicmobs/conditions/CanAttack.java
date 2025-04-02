@@ -5,6 +5,7 @@ import io.lumine.mythic.api.adapters.AbstractPlayer;
 import io.lumine.mythic.api.config.MythicLineConfig;
 import io.lumine.mythic.api.skills.conditions.IEntityCondition;
 import io.lumine.mythic.api.skills.conditions.ISkillCondition;
+import io.lumine.mythic.bukkit.BukkitAdapter;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,7 +34,7 @@ public class CanAttack implements ISkillCondition, IEntityCondition {
 
 
     private boolean getTargetedLocation(@NotNull AbstractPlayer aPlayer) {
-        Player player = (Player)aPlayer.getBukkitEntity();
+        Player player = BukkitAdapter.adapt(aPlayer);
         return rayTrace(player.getEyeLocation(), player.getEyeLocation().getDirection(), distance, (material) -> material == Material.BARRIER );
     }
 

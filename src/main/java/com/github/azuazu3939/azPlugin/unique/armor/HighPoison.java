@@ -21,7 +21,7 @@ public class HighPoison extends Skill {
 
     public HighPoison() {
         super(new NamespacedKey("az", "high_poison"), 5);
-        list.add("§f・攻撃を充てることで敵を毒状態にする。重ね掛け可");
+        list.add("§f・攻撃を充てることで敵を毒状態にする。");
     }
 
     @Override
@@ -55,17 +55,8 @@ public class HighPoison extends Skill {
             if (i == 0) return;
 
             if (getRandom().nextInt(100) < chance) {
-                int l = i;
-                if (entity.hasPotionEffect(PotionEffectType.POISON)) {
-                    PotionEffect e = entity.getPotionEffect(PotionEffectType.POISON);
-                    if (e != null) {
-                        l += e.getAmplifier() + 1;
-                    }
-                }
-
-                int ll = (int) Math.min(Math.pow(i, 2), l);
                 player.sendActionBar(Component.text("ハイポイズンが発動しました"));
-                entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, tick, ll, true, false, true));
+                entity.addPotionEffect(new PotionEffect(PotionEffectType.POISON, tick, i, true, false, true));
             }
         }
     }
