@@ -84,7 +84,7 @@ public abstract class Skill implements SkillBase {
 
     @Override
     public String getString(int partsLevel, Player player) {
-        return partsLevel + "/"+ getLevel(player) + "/" + maxLevel;
+        return "§a" + partsLevel + "§f/§e"+ getLevel(player) + "§f/§c" + maxLevel;
     }
 
     @Override
