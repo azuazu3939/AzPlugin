@@ -55,8 +55,7 @@ public class EatListener implements Listener {
     }
 
     private void applyCooldownAndAdjustAmount(@NotNull EntityRegainHealthEvent event, double playerHealth, UUID playerId) {
-        Class<?> clazz = getClass();
-        Utils.setCoolTime(clazz, playerId, multimap, 60);
+        Utils.setCoolTime(getClass(), playerId, multimap, 60);
         event.setAmount(event.getAmount() * 0.1 * playerHealth + 2);
         healCount(playerId);
     }

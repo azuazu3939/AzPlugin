@@ -24,9 +24,9 @@ public class MythicDisplayListener implements Listener {
 
     private static final Random RANDOM = new Random();
     private static final int DISPLAY_DURATION_TICKS = 30;
-    private static final int RANDOM_BOUND = 4;
+    private static final int RANDOM_BOUND = 5;
     private static final double RANDOM_SCALE = 0.5;
-    private static final double BASE_Y_OFFSET = 1.8;
+    private static final double BASE_Y_OFFSET = 2;
     private static final String DAMAGE_PREFIX = "§7§l⚔";
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -59,16 +59,17 @@ public class MythicDisplayListener implements Listener {
     private void displayDamageText(Player player, @NotNull Location location, Component component) {
         int id = RANDOM.nextInt(Integer.MAX_VALUE);
         if (player == null) {
-            for (Player p : location.getNearbyPlayers(32)) {
-                PacketHandler.spawnTextDisplay(p, location.getX(), location.getY(), location.getZ(), id);
-                PacketHandler.setTextDisplayMeta(p, id, component);
-                AzPlugin.getInstance().runAsyncLater(() -> PacketHandler.removeTextDisplay(p, id), DISPLAY_DURATION_TICKS);
-            }
+            location.getNearbyPlayers(32).forEach(p ->
+                    send(p, location, component, id));
         } else {
-            PacketHandler.spawnTextDisplay(player, location.getX(), location.getY(), location.getZ(), id);
-            PacketHandler.setTextDisplayMeta(player, id, component);
-            AzPlugin.getInstance().runAsyncLater(() -> PacketHandler.removeTextDisplay(player, id), DISPLAY_DURATION_TICKS);
+            send(player, location, component, id);
         }
+    }
+
+    private void send(Player player, @NotNull Location location, Component component, int id) {
+        PacketHandler.spawnTextDisplay(player, location.getX(), location.getY(), location.getZ(), id);
+        PacketHandler.setTextDisplayMeta(player, id, component);
+        AzPlugin.getInstance().runAsyncLater(() -> PacketHandler.removeTextDisplay(player, id), DISPLAY_DURATION_TICKS);
     }
 
     private double formatDamage(double amount) {

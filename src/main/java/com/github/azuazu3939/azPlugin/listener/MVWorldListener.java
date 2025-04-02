@@ -39,8 +39,7 @@ public class MVWorldListener implements Listener {
         String worldName = world.getName();
 
         if (!isResourceWorld(worldName)) return;
-
-        addWorldNameToReset(worldName);
+        RESET_WORLD_NAMES.add(worldName);
 
         World bukkitWorld = world.getCBWorld();
         RegionManager regionManager = getRegionManager(bukkitWorld);
@@ -57,9 +56,6 @@ public class MVWorldListener implements Listener {
         return worldName.toLowerCase().contains("resource");
     }
 
-    private void addWorldNameToReset(String worldName) {
-        RESET_WORLD_NAMES.add(worldName);
-    }
 
     private RegionManager getRegionManager(World bukkitWorld) {
         com.sk89q.worldedit.world.World editWorld = BukkitAdapter.adapt(bukkitWorld);

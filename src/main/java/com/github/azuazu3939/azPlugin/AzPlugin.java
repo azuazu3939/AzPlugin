@@ -60,9 +60,7 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new MVWorldListener(this), this);
         pm.registerEvents(new EntityDamageListener(), this);
         pm.registerEvents(new EatListener(this), this);
-        pm.registerEvents(new LootChestListener(), this);
-        pm.registerEvents(new ResourceWorldListener(), this);
-        pm.registerEvents(new PlayerInteractListener(this), this);
+        pm.registerEvents(new PlayerInteractListener(), this);
         pm.registerEvents(new PlayerWorldChangeListener(), this);
         pm.registerEvents(new PlayerAttackListener(), this);
         pm.registerEvents(new PlayerCommandListener(), this);
