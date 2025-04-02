@@ -9,7 +9,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Contract;
@@ -34,23 +33,27 @@ public class Utils {
 
     @Nullable
     public static String getSlotDataContainerString(@NotNull Player p, EquipmentSlot slot, NamespacedKey key, PersistentDataType<String, String> type) {
-        ItemStack item = p.getInventory().getItem(slot);
+        return Utils.getItemDataContainerString(p.getInventory().getItem(slot), key, type);
+    }
+
+    @Nullable
+    public static String getItemDataContainerString(ItemStack item, NamespacedKey key, PersistentDataType<String, String> type) {
         if (item == null || !item.hasItemMeta()) return null;
         return item.getItemMeta().getPersistentDataContainer().get(key, type);
     }
 
-    public static void setSlotDataContainerString(@NotNull Player p, EquipmentSlot slot, NamespacedKey key, PersistentDataType<String, String> type, String value) {
-        ItemStack item = p.getInventory().getItem(slot);
-        if (item == null || !item.hasItemMeta()) return;
-        ItemMeta meta = item.getItemMeta();
-        meta.getPersistentDataContainer().set(key, type, value);
-        item.setItemMeta(meta);
+    @NotNull
+    public static Set<EquipmentSlot> getAllSlots() {
+        Set<EquipmentSlot> s = getArmorSlots();
+        s.add(EquipmentSlot.HAND);
+        s.add(EquipmentSlot.OFF_HAND);
+        return s;
     }
 
     @NotNull
-    @Contract(value = " -> new", pure = true)
-    public static Set<EquipmentSlot> getSlots() {
-        return new HashSet<>(Set.of(EquipmentSlot.HAND, EquipmentSlot.OFF_HAND, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.HEAD, EquipmentSlot.CHEST));
+    @Contract(" -> new")
+    public static Set<EquipmentSlot> getArmorSlots() {
+        return new HashSet<>(Set.of(EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.HEAD, EquipmentSlot.CHEST));
     }
 
     public static void removeAttribute(@NotNull Player player, @NotNull Attribute attribute, NamespacedKey key) {
@@ -67,9 +70,9 @@ public class Utils {
         attr.addModifier(modifier);
     }
 
-    public static double getDataContainerDouble(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type) {
+    public static double getDataContainerDouble(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type, @NotNull Set<EquipmentSlot> slots) {
         AtomicReference<Double> origin = new AtomicReference<>(0.0);
-        getSlots().forEach(slot -> {
+        slots.forEach(slot -> {
             String s = getSlotDataContainerString(p, slot, key, type);
             if (s == null) return;
             origin.updateAndGet(v -> v + Double.parseDouble(s));
@@ -77,32 +80,12 @@ public class Utils {
         return origin.get();
     }
 
-    public static int getDataContainerInt(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type) {
+    public static int getDataContainerInt(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type, @NotNull Set<EquipmentSlot> slots) {
         AtomicReference<Integer> origin = new AtomicReference<>(0);
-        getSlots().forEach(slot -> {
+        slots.forEach(slot -> {
             String s = getSlotDataContainerString(p, slot, key, type);
             if (s == null) return;
             origin.updateAndGet(v -> v + Integer.parseInt(s));
-        });
-        return origin.get();
-    }
-
-    public static long getDataContainerLong(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type) {
-        AtomicReference<Long> origin = new AtomicReference<>(0L);
-        getSlots().forEach(slot -> {
-            String s = getSlotDataContainerString(p, slot, key, type);
-            if (s == null) return;
-            origin.updateAndGet(v -> v + Long.parseLong(s));
-        });
-        return origin.get();
-    }
-
-    public static float getDataContainerFloat(@NotNull Player p, NamespacedKey key, PersistentDataType<String, String> type) {
-        AtomicReference<Float> origin = new AtomicReference<>(0.0f);
-        getSlots().forEach(slot -> {
-            String s = getSlotDataContainerString(p, slot, key, type);
-            if (s == null) return;
-            origin.updateAndGet(v -> v + Float.parseFloat(s));
         });
         return origin.get();
     }

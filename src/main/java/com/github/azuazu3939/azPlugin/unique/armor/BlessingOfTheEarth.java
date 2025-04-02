@@ -43,9 +43,8 @@ public class BlessingOfTheEarth extends Skill {
             int i = getLevel(player);
             if (i == 0) return;
             if (!player.isOnGround()) return;
-            Bukkit.getScheduler().runTask(AzPlugin.getInstance(), () -> {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, i - 1, true, false, true));
-            });
+            Bukkit.getScheduler().runTask(AzPlugin.getInstance(), () ->
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, tick, i - 1, true, false, true)));
         }
 
         public static void addMember(@NotNull Player player) {

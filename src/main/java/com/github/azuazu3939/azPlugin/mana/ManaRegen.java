@@ -17,7 +17,7 @@ public class ManaRegen extends Mana {
 
     private static final Map<UUID, BukkitTask> TASKS = new HashMap<>();
 
-    public static final NamespacedKey MANA_REGEN = new NamespacedKey("lifenewpve", "mana_regen");
+    public static final NamespacedKey MANA_REGEN = new NamespacedKey("az", "mana_regen");
 
     private double regen = 10.0;
 
@@ -25,7 +25,7 @@ public class ManaRegen extends Mana {
 
     public double getFinalRegen() {
         return getBaseRegen()
-                + Utils.getDataContainerDouble(player, MANA_REGEN, PersistentDataType.STRING)
+                + Utils.getDataContainerDouble(player, MANA_REGEN, PersistentDataType.STRING, Utils.getAllSlots())
                 + Utils.getPlayerDataContainerDouble(player, MANA_REGEN, PersistentDataType.STRING, 0.0);
     }
 

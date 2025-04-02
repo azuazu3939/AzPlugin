@@ -15,9 +15,9 @@ public class Mana {
 
     private final Player player;
 
-    public static final NamespacedKey MANA_VALUE = new NamespacedKey("lifenewpve", "mana");
+    public static final NamespacedKey MANA_VALUE = new NamespacedKey("az", "mana");
 
-    public static final NamespacedKey MAX_MANA = new NamespacedKey("lifenewpve", "max_mana");
+    public static final NamespacedKey MAX_MANA = new NamespacedKey("az", "max_mana");
 
     protected final NumberFormat format = NumberFormat.getInstance();
 
@@ -40,7 +40,7 @@ public class Mana {
     }
 
     protected double getItemMaxMana() {
-        return Utils.getDataContainerDouble(player, MAX_MANA, PersistentDataType.STRING);
+        return Utils.getDataContainerDouble(player, MAX_MANA, PersistentDataType.STRING, Utils.getAllSlots());
     }
 
     public void setMana(double value) {
