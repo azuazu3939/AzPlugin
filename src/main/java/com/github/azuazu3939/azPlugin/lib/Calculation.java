@@ -22,7 +22,7 @@ public class Calculation {
     }
 
     public double getFinalDamage() {
-        return FINAL_DAMAGE / 5;
+        return FINAL_DAMAGE / 20;
     }
 
     public Calculation multipleDamage(double m) {
