@@ -34,7 +34,7 @@ dependencies {
 }
 
 group = "com.github.azuazu3939"
-version = "1.2.0"
+version = "2.0.0"
 description = "AzPlugin"
 java.sourceCompatibility = JavaVersion.VERSION_21
 

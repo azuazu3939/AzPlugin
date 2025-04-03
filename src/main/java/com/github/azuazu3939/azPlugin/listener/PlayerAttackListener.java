@@ -3,15 +3,14 @@ package com.github.azuazu3939.azPlugin.listener;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import io.lumine.mythic.api.skills.Skill;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
-import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,16 +23,16 @@ public class PlayerAttackListener implements Listener {
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPre(@NotNull PrePlayerAttackEntityEvent event) {
         event.setCancelled(true);
+        attack(event.getPlayer());
     }
 
     @EventHandler
-    public void onSwing(@NotNull PlayerArmSwingEvent event) {
-        if (event.getAnimationType().equals(PlayerAnimationType.ARM_SWING)) return;
-        Player player = event.getPlayer();
+    public void onInteract(@NotNull PlayerInteractEvent event) {
+        if (event.getAction().isRightClick() || event.getHand() == null || event.getHand() == EquipmentSlot.OFF_HAND) return;
+        attack(event.getPlayer());
+    }
 
-        Skill s = MythicBukkit.inst().getSkillManager().getSkill("Generic_Weapon_Attack_MCLove32").orElse(null);
-        if (s == null) return;
-
+    private void attack(@NotNull Player player) {
         if (player.getAttackCooldown() != 1) return;
         ItemStack itemStack = player.getInventory().getItemInMainHand();
         String mmid = MythicBukkit.inst().getItemManager().getMythicTypeFromItem(itemStack);

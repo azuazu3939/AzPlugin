@@ -29,8 +29,6 @@ public class OpenFieldListener implements Listener {
     public void onPlayerJoin(@NotNull PlayerJoinEvent event) {
         Player player = event.getPlayer();
         Utils.removeAttribute(player, Attribute.GENERIC_STEP_HEIGHT, step);
-
-        if (!player.getWorld().getName().equals("Plains")) return;
         AzPlugin.getInstance().runLater(()-> setStep(player), 10L);
     }
 
@@ -38,8 +36,6 @@ public class OpenFieldListener implements Listener {
     public void onWorldChange(@NotNull PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
         Utils.removeAttribute(player, Attribute.GENERIC_STEP_HEIGHT, step);
-
-        if (!player.getWorld().getName().equals("Plains")) return;
         setStep(player);
     }
 }
