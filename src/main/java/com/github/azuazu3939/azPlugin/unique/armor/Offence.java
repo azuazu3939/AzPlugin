@@ -4,7 +4,6 @@ import com.github.azuazu3939.azPlugin.unique.Skill;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 
@@ -32,8 +31,6 @@ public class Offence extends Skill {
 
     public static class System extends Offence {
 
-        final int multipleLevel = 3;
-        final double multiple = 1.01;
         final int value = 3;
         final int add = 2;
 
@@ -46,29 +43,16 @@ public class Offence extends Skill {
         public static final NamespacedKey DAMAGE_KEY =  new NamespacedKey("az", "unique-offence-damage");
 
         public void apply() {
+            unset();
             int i = getLevel(player);
             if (i == 0) return;
 
             double a = mathAdd(i);
-            double m = Math.ceil(mathMultiply(i) * 100) / 100;
-
-            double damage = value(a, m);
-            Utils.addAttribute(player, Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(DAMAGE_KEY, damage, AttributeModifier.Operation.ADD_NUMBER));
-
-        }
-
-        private double value(double value, double multiple) {
-            AttributeInstance inst = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-            if (inst == null) return 0;
-            return inst.getValue() * (1 + multiple) + value;
+            Utils.addAttribute(player, Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(DAMAGE_KEY, a, AttributeModifier.Operation.ADD_NUMBER));
         }
 
         private double mathAdd(int level) {
             return (level - 1) * add + value;
-        }
-
-        private double mathMultiply(int level) {
-            return (level - multipleLevel) <= 0 ? 0 : Math.pow(multiple, Math.pow(2, level - multipleLevel + 1));
         }
 
         public void unset() {

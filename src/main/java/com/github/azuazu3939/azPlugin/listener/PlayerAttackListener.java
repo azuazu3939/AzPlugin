@@ -8,7 +8,5 @@ import org.jetbrains.annotations.NotNull;
 public class PlayerAttackListener implements Listener {
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPre(@NotNull PrePlayerAttackEntityEvent event) {
-        event.setCancelled(true);
-    }
+    public void onPre(@NotNull PrePlayerAttackEntityEvent event) {event.setCancelled(true);}
 }

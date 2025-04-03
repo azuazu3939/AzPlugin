@@ -1,5 +1,6 @@
 package com.github.azuazu3939.azPlugin.listener;
 
+import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.unique.armor.*;
 import io.lumine.mythic.bukkit.events.MythicDamageEvent;
 import io.lumine.mythic.bukkit.events.MythicHealMechanicEvent;
@@ -40,10 +41,7 @@ public class UniqueSkillListener implements Listener {
         Player player = event.getPlayer();
 
         GroundReactionForce.System.addMember(player);
-        new Defence.System(player).unset();
         new Defence.System(player).apply();
-
-        new Offence.System(player).unset();
         new Offence.System(player).apply();
     }
 
@@ -75,17 +73,16 @@ public class UniqueSkillListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEquip(@NotNull ArmorEquipEvent event) {
         Player player = event.getPlayer();
 
         GroundReactionForce.System.removeMember(player.getUniqueId());
         GroundReactionForce.System.addMember(player);
 
-        new Defence.System(player).unset();
-        new Defence.System(player).apply();
-
-        new Offence.System(player).unset();
-        new Offence.System(player).apply();
+        AzPlugin.getInstance().runLater(()-> {
+            new Defence.System(player).apply();
+            new Offence.System(player).apply();
+        }, 2);
     }
 }

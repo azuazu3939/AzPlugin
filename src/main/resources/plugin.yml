@@ -53,6 +53,10 @@ commands:
     permission: lifenewpve.command.dungeon
     aliases:
       - dg
+  viewer:
+    permission: lifenewpve.command.viewer
+    aliases:
+      - vie
 
 permissions:
   lifenewpve.*:
@@ -71,6 +75,7 @@ permissions:
       lifenewpve.command.worldcreate: true
       lifenewpve.command.worldregen: true
       lifenewpve.command.dungeon: true
+      lifenewpve.command.viewer: true
   lifenewpve.reload.mythicmobs:
     default: op
   lifenewpve.command.setmaxmana:
@@ -89,3 +94,5 @@ permissions:
     default: op
   lifenewpve.command.dungeon:
     default: op
+  lifenewpve.command.viewer:
+    default: true

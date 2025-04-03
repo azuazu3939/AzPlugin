@@ -64,8 +64,8 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new PlayerWorldChangeListener(), this);
         pm.registerEvents(new PlayerAttackListener(), this);
         pm.registerEvents(new PlayerCommandListener(), this);
-
         pm.registerEvents(new OpenFieldListener(), this);
+        pm.registerEvents(new DamageCalculationListener(), this);
     }
 
     private void registerCommands() {
@@ -77,6 +77,7 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("setmana")).setExecutor(new SetManaCommand());
         Objects.requireNonNull(getCommand("setmaxmana")).setExecutor(new SetMaxManaCommand());
         Objects.requireNonNull(getCommand("dungeon")).setExecutor(new DungeonCommand());
+        Objects.requireNonNull(getCommand("viewer")).setExecutor(new AttributeViewer());
     }
 
     private void registerDB() {
@@ -88,10 +89,7 @@ public final class AzPlugin extends JavaPlugin {
             new ManaRegen(player).start();
             GroundReactionForce.System.addMember(player);
 
-            new Defence.System(player).unset();
             new Defence.System(player).apply();
-
-            new Offence.System(player).unset();
             new Offence.System(player).apply();
         });
     }
