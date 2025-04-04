@@ -16,8 +16,7 @@ public class Calculation {
 
         this.FINAL_DAMAGE = (ATTACK <= 0) ? 0 : Math.max(0, MOTION * ATTACK - ARMOR);
         if (FINAL_DAMAGE > 0) {
-            FINAL_DAMAGE *= getValue(200, ARMOR, TOUGHNESS, 1);
-            FINAL_DAMAGE *= getValue(100, 0, TOUGHNESS, 3);
+            FINAL_DAMAGE *= getValue(TOUGHNESS);
         }
     }
 
@@ -25,24 +24,19 @@ public class Calculation {
         return FINAL_DAMAGE / 20;
     }
 
-    public Calculation multipleDamage(double m) {
-        FINAL_DAMAGE *= m;
-        return this;
+    private double math(double lim, double value) {
+        double a = Math.min(value, lim);
+        return 1 - a  / (a + lim);
     }
 
-    private double math(double lim, double armor, double toughness, double scale) {
-        double a = Math.min(armor + toughness, lim);
-        return 1 - a  / (a + lim * scale);
-    }
-
-    private double getValue(int base, double armor, double toughness, double scale) {
+    private double getValue(double value) {
         double resistance = 1.0;
         for (int depth = 0; depth < 10; depth++) {
 
-            double lim = base * Math.pow(2, depth);
-            resistance *= math(lim, armor, toughness, scale);
+            double lim = 100 * Math.pow(2, depth);
+            resistance *= math(lim, value);
 
-            if (armor + toughness <= lim) {
+            if (value <= lim) {
                 break;
             }
         }
