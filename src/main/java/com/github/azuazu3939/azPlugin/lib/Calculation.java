@@ -21,7 +21,7 @@ public class Calculation {
     }
 
     public double getFinalDamage() {
-        return FINAL_DAMAGE / 20;
+        return Math.max(1, Math.round(FINAL_DAMAGE / 20));
     }
 
     private double math(double lim, double value) {
