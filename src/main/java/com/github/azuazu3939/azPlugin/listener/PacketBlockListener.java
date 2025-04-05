@@ -1,6 +1,7 @@
 package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.github.azuazu3939.azPlugin.lib.PacketBlockRegister;
 import com.github.azuazu3939.azPlugin.lib.PacketHandler;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -17,6 +18,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -50,8 +52,17 @@ public class PacketBlockListener implements Listener {
     }
 
     private void process(@NotNull Player player, @NotNull Location loc, Material material) {
-        BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        PacketBlockRegister pbr = PacketBlockRegister.checkAndGet(loc);
+        if (pbr != null) {
+            if (pbr.setBlock(player)) return;
 
+            ItemStack item = pbr.getDrop();
+            if (item != null) {
+                player.getInventory().addItem(item).forEach((n, i) ->
+                        player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item));
+            }
+        }
+        BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         if (isAffected(player.getUniqueId(), ps)) return;
         AzPlugin.getInstance().runAsyncLater(()-> {
             PacketHandler.changeBlock(player, ps, material);

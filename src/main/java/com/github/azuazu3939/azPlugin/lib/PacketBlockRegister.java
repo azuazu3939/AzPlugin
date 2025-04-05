@@ -40,4 +40,12 @@ public record PacketBlockRegister(Location location, ConditionsRecord record, Da
         }
         return false;
     }
+
+    @Nullable
+    public static PacketBlockRegister checkAndGet(Location loc) {
+        if (BLOCKS.containsKey(loc)) {
+            return BLOCKS.get(loc);
+        }
+        return null;
+    }
 }
