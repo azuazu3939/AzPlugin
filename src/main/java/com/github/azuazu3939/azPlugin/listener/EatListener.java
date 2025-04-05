@@ -21,7 +21,6 @@ public class EatListener implements Listener {
     private final AzPlugin plugin;
 
     private static final Multimap<Class<?>, UUID> multimap = HashMultimap.create();
-
     private static final Map<UUID, Integer> countMap = new HashMap<>();
 
     public EatListener(AzPlugin plugin) {

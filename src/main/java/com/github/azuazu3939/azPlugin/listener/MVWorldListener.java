@@ -53,7 +53,7 @@ public class MVWorldListener implements Listener {
     }
 
     private boolean isResourceWorld(@NotNull String worldName) {
-        return worldName.toLowerCase().contains("resource");
+        return worldName.toLowerCase().contains("open");
     }
 
 

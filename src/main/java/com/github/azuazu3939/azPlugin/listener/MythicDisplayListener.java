@@ -75,7 +75,7 @@ public class MythicDisplayListener implements Listener {
     private double formatDamage(double amount) {
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setMaximumFractionDigits(2);
-        return Double.parseDouble(numberFormat.format(amount));
+        return Double.parseDouble(numberFormat.format(amount).replaceAll(",", ""));
     }
 
     @NotNull

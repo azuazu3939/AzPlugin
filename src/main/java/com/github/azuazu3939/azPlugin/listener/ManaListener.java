@@ -41,15 +41,22 @@ public class ManaListener implements Listener {
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        new ManaRegen(player).start();
+        removeBossBar(player.getUniqueId());
+
+        AzPlugin.getInstance().runLater(()-> {
+            removeLastUsedMana(player.getUniqueId());
+            new ManaRegen(player).start();
+        }, 20);
     }
 
     @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        new ManaRegen(player).stop();
-        removeBossBar(player.getUniqueId());
-        removeLastUsedMana(player.getUniqueId());
+
+        AzPlugin.getInstance().runLater(()-> {
+            new ManaRegen(player).stop();
+            removeLastUsedMana(player.getUniqueId());
+        }, 20);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

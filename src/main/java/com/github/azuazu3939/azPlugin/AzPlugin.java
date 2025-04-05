@@ -1,8 +1,8 @@
 package com.github.azuazu3939.azPlugin;
 
 import com.github.azuazu3939.azPlugin.commands.*;
-import com.github.azuazu3939.azPlugin.database.DBCon;
 import com.github.azuazu3939.azPlugin.lib.Lore;
+import com.github.azuazu3939.azPlugin.lib.PacketHandler;
 import com.github.azuazu3939.azPlugin.listener.*;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
 import com.github.azuazu3939.azPlugin.unique.armor.GroundReactionForce;
@@ -48,6 +48,7 @@ public final class AzPlugin extends JavaPlugin {
     public void onDisable() {
         ManaListener.removeAll();
         //DBCon.close();
+        Bukkit.getOnlinePlayers().forEach(PacketHandler::eject);
     }
 
     private void registerListeners() {
@@ -60,12 +61,11 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new MVWorldListener(this), this);
         pm.registerEvents(new EntityDamageListener(), this);
         pm.registerEvents(new EatListener(this), this);
-        pm.registerEvents(new PlayerInteractListener(), this);
-        pm.registerEvents(new PlayerWorldChangeListener(), this);
         pm.registerEvents(new PlayerAttackListener(), this);
         pm.registerEvents(new PlayerCommandListener(), this);
-        pm.registerEvents(new OpenFieldListener(), this);
         pm.registerEvents(new DamageCalculationListener(), this);
+        pm.registerEvents(new MineBlockListener(), this);
+        pm.registerEvents(new GlobalSettingsListener(), this);
     }
 
     private void registerCommands() {
@@ -80,10 +80,6 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("viewer")).setExecutor(new AttributeViewer());
     }
 
-    private void registerDB() {
-        runAsync(()-> new DBCon().initialize(this));
-    }
-
     private void onlinePlayer() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             new ManaRegen(player).start();
@@ -91,6 +87,7 @@ public final class AzPlugin extends JavaPlugin {
 
             new Defence.System(player).apply();
             new Offence.System(player).apply();
+            PacketHandler.inject(player);
         });
     }
 
