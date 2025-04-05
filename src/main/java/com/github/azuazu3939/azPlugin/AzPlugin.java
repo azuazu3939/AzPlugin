@@ -64,7 +64,7 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new PlayerAttackListener(), this);
         pm.registerEvents(new PlayerCommandListener(), this);
         pm.registerEvents(new DamageCalculationListener(), this);
-        pm.registerEvents(new MineBlockListener(), this);
+        pm.registerEvents(new PacketBlockListener(), this);
         pm.registerEvents(new GlobalSettingsListener(), this);
     }
 

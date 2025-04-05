@@ -65,15 +65,15 @@ public class PacketHandler {
         sendPacket(p, packet);
     }
 
-    public static void changeBedrock(Player p, @NotNull BlockPos pos) {
+    public static void changeBlock(Player p, @NotNull BlockPos pos, Material material) {
         MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendBlockChange(
 
                 Collections.singleton(BukkitAdapter.adapt(p)),
                 BukkitAdapter.adapt(new Location(p.getWorld(), pos.getX(), pos.getY(), pos.getZ())),
-                new BukkitBlock(Material.BEDROCK));
+                new BukkitBlock(material));
     }
 
-    public static void removeBedrock(Player p, BlockPos pos) {
+    public static void undoEffected(Player p, BlockPos pos) {
         if (p == null) return;
         ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(((CraftWorld) p.getWorld()).getHandle(), pos);
         sendPacket(p, packet);
