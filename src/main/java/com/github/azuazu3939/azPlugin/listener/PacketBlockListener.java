@@ -53,32 +53,28 @@ public class PacketBlockListener implements Listener {
 
     private void process(@NotNull Player player, @NotNull Location loc, Material material) {
         PacketBlockRegister pbr = PacketBlockRegister.checkAndGet(loc);
+        long tick = 200;
         if (pbr != null) {
-            if (pbr.setBlock(player)) return;
 
             ItemStack item = pbr.getDrop();
             if (item != null) {
                 player.getInventory().addItem(item).forEach((n, i) ->
                         player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item));
+
+            } else if (pbr.setBlock()) {
+                tick = pbr.tick();
             }
+
         }
         BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         if (isAffected(player.getUniqueId(), ps)) return;
+
+        if (tick <= 0) return;
+        long ft = tick;
         AzPlugin.getInstance().runAsyncLater(()-> {
             PacketHandler.changeBlock(player, ps, material);
-            put(player.getUniqueId(), ps);
+            put(player.getUniqueId(), ps, ft);
         }, 1);
-    }
-
-    public static boolean process(@NotNull Player player, @NotNull Location loc, Material material, long tick) {
-        BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-
-        if (isAffected(player.getUniqueId(), ps)) return false;
-        AzPlugin.getInstance().runAsyncLater(()-> {
-            PacketHandler.changeBlock(player, ps, material);
-            put(player.getUniqueId(), ps, tick);
-        }, 1);
-        return true;
     }
 
     public static boolean isAffected(UUID uuid, BlockPos pos) {
@@ -89,14 +85,6 @@ public class PacketBlockListener implements Listener {
             }
         }
         return false;
-    }
-
-    private void put(UUID uuid, BlockPos pos) {
-        packetBlocks.put(uuid, pos);
-        AzPlugin.getInstance().runAsyncLater(()-> {
-            packetBlocks.remove(uuid, pos);
-            PacketHandler.undoEffected(Bukkit.getPlayer(uuid), pos);
-        }, 200);
     }
 
     private static void put(UUID uuid, BlockPos pos, long tick) {
