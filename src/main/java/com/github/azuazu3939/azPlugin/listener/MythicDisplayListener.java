@@ -69,7 +69,7 @@ public class MythicDisplayListener implements Listener {
     private void send(Player player, @NotNull Location location, Component component, int id) {
         PacketHandler.spawnTextDisplay(player, location.getX(), location.getY(), location.getZ(), id);
         PacketHandler.setTextDisplayMeta(player, id, component);
-        AzPlugin.getInstance().runAsyncLater(() -> PacketHandler.removeTextDisplay(player, id), DISPLAY_DURATION_TICKS);
+        AzPlugin.getInstance().runAsyncLater(() -> PacketHandler.removePacketEntity(player, id), DISPLAY_DURATION_TICKS);
     }
 
     private double formatDamage(double amount) {

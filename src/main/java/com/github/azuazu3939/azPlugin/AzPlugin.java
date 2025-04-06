@@ -1,6 +1,7 @@
 package com.github.azuazu3939.azPlugin;
 
 import com.github.azuazu3939.azPlugin.commands.*;
+import com.github.azuazu3939.azPlugin.database.DBCon;
 import com.github.azuazu3939.azPlugin.lib.Lore;
 import com.github.azuazu3939.azPlugin.lib.PacketHandler;
 import com.github.azuazu3939.azPlugin.listener.*;
@@ -18,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.Objects;
 
 public final class AzPlugin extends JavaPlugin {
@@ -41,13 +43,17 @@ public final class AzPlugin extends JavaPlugin {
         onlinePlayer();
 
         new Lore(this).register();
-
+        try {
+            DBCon.init();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void onDisable() {
         ManaListener.removeAll();
-        //DBCon.close();
+        DBCon.close();
         Bukkit.getOnlinePlayers().forEach(PacketHandler::eject);
     }
 
@@ -78,6 +84,9 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("setmaxmana")).setExecutor(new SetMaxManaCommand());
         Objects.requireNonNull(getCommand("dungeon")).setExecutor(new DungeonCommand());
         Objects.requireNonNull(getCommand("viewer")).setExecutor(new AttributeViewer());
+        Objects.requireNonNull(getCommand("//pos1")).setExecutor(new PositionCommand());
+        Objects.requireNonNull(getCommand("//pos2")).setExecutor(new PositionCommand());
+        Objects.requireNonNull(getCommand("//setDrop")).setExecutor(new SetDropCommand());
     }
 
     private void onlinePlayer() {

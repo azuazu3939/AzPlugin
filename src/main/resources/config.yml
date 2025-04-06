@@ -13,4 +13,4 @@ Database:
   database: database
   username: username
   password: password
-  lootChest: loot_chest
+  location: location

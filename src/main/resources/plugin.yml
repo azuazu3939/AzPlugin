@@ -12,87 +12,102 @@ depend:
 
 commands:
   worldregen:
-    permission: lifenewpve.command.worldregen
+    permission: azplugin.command.worldregen
     aliases:
       - wr
       - worldRegen
   worldcreate:
-    permission: lifenewpve.command.worldcreate
+    permission: azplugin.command.worldcreate
     aliases:
       - wc
       - worldCreate
   worldteleport:
-    permission: lifenewpve.command.worldteleport
+    permission: azplugin.command.worldteleport
     aliases:
       - wt
       - worldTeleport
       - wsp
       - ws
   worldset:
-    permission: lifenewpve.command.worldset
+    permission: azplugin.command.worldset
     aliases:
       - wset
       - wse
       - wst
   mode:
-    permission: lifenewpve.command.mode
+    permission: azplugin.command.mode
     aliases:
       - md
   setmana:
-    permission: lifenewpve.command.setmana
+    permission: azplugin.command.setmana
     aliases:
       - addmana
       - addMana
       - setMana
       - sm
   setmaxmana:
-    permission: lifenewpve.command.setmaxmana
+    permission: azplugin.command.setmaxmana
     aliases:
       - smm
   dungeon:
-    permission: lifenewpve.command.dungeon
+    permission: azplugin.command.dungeon
     aliases:
       - dg
   viewer:
-    permission: lifenewpve.command.viewer
+    permission: azplugin.command.viewer
     aliases:
       - vie
+  //pos1:
+    permission: azplugin.command.pos1
+  //pos2:
+    permission: azplugin.command.pos2
+  //setDrop:
+    permission: azplugin.command.setdrop
 
 permissions:
-  lifenewpve.*:
+  azplugin.*:
     default: false
     children:
-      lifenewpve.reload.mythicmobs: true
-      lifenewpve.command.*: true
-  lifenewpve.command.*:
+      azplugin.reload.mythicmobs: true
+      azplugin.command.*: true
+  azplugin.command.*:
     default: false
     children:
-      lifenewpve.command.setmaxmana: true
-      lifenewpve.command.setmana: true
-      lifenewpve.command.mode: true
-      lifenewpve.command.worldset: true
-      lifenewpve.command.worldteleport: true
-      lifenewpve.command.worldcreate: true
-      lifenewpve.command.worldregen: true
-      lifenewpve.command.dungeon: true
-      lifenewpve.command.viewer: true
-  lifenewpve.reload.mythicmobs:
+      azplugin.command.setmaxmana: true
+      azplugin.command.setmana: true
+      azplugin.command.mode: true
+      azplugin.command.worldset: true
+      azplugin.command.worldteleport: true
+      azplugin.command.worldcreate: true
+      azplugin.command.worldregen: true
+      azplugin.command.dungeon: true
+      azplugin.command.viewer: true
+      azplugin.command.pos1: true
+      azplugin.command.pos2: true
+      azplugin.command.setdro: true
+  azplugin.reload.mythicmobs:
     default: op
-  lifenewpve.command.setmaxmana:
+  azplugin.command.setmaxmana:
     default: op
-  lifenewpve.command.setmana:
+  azplugin.command.setmana:
     default: op
-  lifenewpve.command.mode:
+  azplugin.command.mode:
     default: op
-  lifenewpve.command.worldset:
+  azplugin.command.worldset:
     default: op
-  lifenewpve.command.worldteleport:
+  azplugin.command.worldteleport:
     default: op
-  lifenewpve.command.worldcreate:
+  azplugin.command.worldcreate:
     default: op
-  lifenewpve.command.worldregen:
+  azplugin.command.worldregen:
     default: op
-  lifenewpve.command.dungeon:
+  azplugin.command.dungeon:
     default: op
-  lifenewpve.command.viewer:
+  azplugin.command.viewer:
     default: true
+  azplugin.command.pos1:
+    default: op
+  azplugin.command.pos2:
+    default: op
+  azplugin.command.setdrop:
+    default: op

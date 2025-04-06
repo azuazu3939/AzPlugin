@@ -4,10 +4,7 @@ import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.mythicmobs.Fake;
 import com.github.azuazu3939.azPlugin.mythicmobs.Placeholder;
 import com.github.azuazu3939.azPlugin.mythicmobs.conditions.*;
-import com.github.azuazu3939.azPlugin.mythicmobs.mechanics.ModifyMana;
-import com.github.azuazu3939.azPlugin.mythicmobs.mechanics.RaidBoss;
-import com.github.azuazu3939.azPlugin.mythicmobs.mechanics.SetFallDistance;
-import com.github.azuazu3939.azPlugin.mythicmobs.mechanics.SetScale;
+import com.github.azuazu3939.azPlugin.mythicmobs.mechanics.*;
 import io.lumine.mythic.bukkit.events.MythicConditionLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMechanicLoadEvent;
 import io.lumine.mythic.bukkit.events.MythicMobItemGenerateEvent;
@@ -52,20 +49,24 @@ public class MythicListener implements Listener {
     private void registerMechanic(@NotNull MythicMechanicLoadEvent event) {
         String mechanicName = event.getMechanicName().toLowerCase();
         switch (mechanicName) {
-            case "setfalldistance":
+            case "setfalldistance", "setfall":
                 event.register(new SetFallDistance(event.getConfig()));
                 break;
-            case "raidboss":
+            case "raidboss", "setboss":
                 event.register(new RaidBoss());
-            case "modifymana":
+            case "modifymana", "addmana":
                 event.register(new ModifyMana(event.getConfig()));
                 break;
-            case "setscale":
+            case "setscale", "scale":
                 event.register(new SetScale(event.getConfig()));
                 break;
             case "fake":
                 event.register(new Fake(event.getConfig()));
                 break;
+            case "packetblock", "packetb", "pb":
+                event.register(new PacketBlock(event.getConfig()));
+            case "packetitemstack", "packetitem", "packeti", "pi":
+                event.register(new PacketItem(event.getConfig()));
             default:
                 // 未知の条件には何もしません
                 break;

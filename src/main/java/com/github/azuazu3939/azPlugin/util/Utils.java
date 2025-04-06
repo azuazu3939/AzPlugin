@@ -22,6 +22,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Utils {
 
+    public static void dropItem(@NotNull Player player, @NotNull ItemStack item) {
+        AzPlugin.getInstance().run(()-> {
+            player.getInventory().addItem(item).forEach((n, i) ->
+                    player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item));
+        });
+    }
+
     public static boolean isCoolTime(Class<?> clazz, UUID uuid, @NotNull Multimap<Class<?>, UUID> multimap) {
         return multimap.containsEntry(clazz, uuid);
     }

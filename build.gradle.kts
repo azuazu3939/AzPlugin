@@ -29,6 +29,7 @@ dependencies {
     compileOnlyApi("net.azisaba.loreeditor:plugin:1.2.0:all")
 
     implementation("com.zaxxer:HikariCP:6.0.0")
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.3")
 
     paperweight.paperDevBundle("1.21.1-R0.1-SNAPSHOT")
 }
@@ -44,10 +45,12 @@ publishing {
     }
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-}
-
-tasks.withType<Javadoc>() {
-    options.encoding = "UTF-8"
+tasks {
+    compileJava {
+        options.encoding = Charsets.UTF_8.name()
+    }
+    shadowJar {
+        relocate("com.zaxxer.hikari", "com.github.azuazu3939.lib.com.zaxxer.hikari")
+        relocate("org.mariadb.jdbc", "com.github.azuazu3939.lib.org.mariadb.jdbc")
+    }
 }

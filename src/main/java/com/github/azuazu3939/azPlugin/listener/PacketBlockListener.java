@@ -1,10 +1,13 @@
 package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.lib.PacketBlockRegister;
+import com.github.azuazu3939.azPlugin.database.DBLocation;
+import com.github.azuazu3939.azPlugin.lib.LocationAction;
 import com.github.azuazu3939.azPlugin.lib.PacketHandler;
+import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import io.lumine.mythic.bukkit.MythicBukkit;
 import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -21,6 +24,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class PacketBlockListener implements Listener {
@@ -52,29 +56,37 @@ public class PacketBlockListener implements Listener {
     }
 
     private void process(@NotNull Player player, @NotNull Location loc, Material material) {
-        PacketBlockRegister pbr = PacketBlockRegister.checkAndGet(loc);
-        long tick = 200;
-        if (pbr != null) {
+        Optional<LocationAction> op = DBLocation.getLocationAction(loc);
+        if (op.isPresent()) {
+            LocationAction action = op.get();
+            long tick;
+            String mmid = action.mmid();
+            if (mmid != null) {
+                tick = action.tick();
+                ItemStack item = MythicBukkit.inst().getItemManager().getItemStack(mmid, action.amount());
+                Utils.dropItem(player, item);
 
-            ItemStack item = pbr.getDrop();
-            if (item != null) {
-                player.getInventory().addItem(item).forEach((n, i) ->
-                        player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item));
+            } else if (action.material() != null) {
+                tick = action.tick();
 
-            } else if (pbr.setBlock()) {
-                tick = pbr.tick();
+            } else {
+                tick = DBLocation.DEFAULT_TICK;
             }
 
-        }
-        BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-        if (isAffected(player.getUniqueId(), ps)) return;
+            BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            if (isAffected(player.getUniqueId(), ps)) {
+                AzPlugin.getInstance().runAsync(() ->
+                        PacketHandler.changeBlock(player, ps, material));
+                return;
+            }
 
-        if (tick <= 0) return;
-        long ft = tick;
-        AzPlugin.getInstance().runAsyncLater(()-> {
-            PacketHandler.changeBlock(player, ps, material);
-            put(player.getUniqueId(), ps, ft);
-        }, 1);
+            AzPlugin.getInstance().runAsyncLater(() -> {
+                PacketHandler.changeBlock(player, ps, material);
+                if (tick > 0) {
+                    put(player.getUniqueId(), ps, tick);
+                }
+            }, 1);
+        }
     }
 
     public static boolean isAffected(UUID uuid, BlockPos pos) {
