@@ -72,6 +72,7 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new DamageCalculationListener(), this);
         pm.registerEvents(new PacketBlockListener(), this);
         pm.registerEvents(new GlobalSettingsListener(), this);
+        pm.registerEvents(new GoldenAxeListener(), this);
     }
 
     private void registerCommands() {

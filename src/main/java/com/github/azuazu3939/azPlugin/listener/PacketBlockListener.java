@@ -6,12 +6,14 @@ import com.github.azuazu3939.azPlugin.lib.LocationAction;
 import com.github.azuazu3939.azPlugin.lib.PacketHandler;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,17 +21,33 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 public class PacketBlockListener implements Listener {
 
     private static final Multimap<UUID, BlockPos> packetBlocks = ArrayListMultimap.create();
+    private static final Multimap<Class<?>, UUID> multimap = HashMultimap.create();
+
+    @EventHandler
+    public void onInteract(@NotNull PlayerInteractEvent event) {
+        if (event.getHand() != EquipmentSlot.HAND) return;
+        Block block = event.getClickedBlock();
+        if (block == null) return;
+
+        Player player = event.getPlayer();
+        if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return;
+        Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 2);
+        DBLocation.getLocationAction(block.getLocation());
+    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(@NotNull BlockBreakEvent event) {
@@ -61,10 +79,12 @@ public class PacketBlockListener implements Listener {
             LocationAction action = op.get();
             long tick;
             String mmid = action.mmid();
-            if (mmid != null) {
+            Random ran = new Random();
+            if (mmid != null && ran.nextDouble() < action.chance()) {
                 tick = action.tick();
                 ItemStack item = MythicBukkit.inst().getItemManager().getItemStack(mmid, action.amount());
                 Utils.dropItem(player, item);
+                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
 
             } else if (action.material() != null) {
                 tick = action.tick();
@@ -72,6 +92,8 @@ public class PacketBlockListener implements Listener {
             } else {
                 tick = DBLocation.DEFAULT_TICK;
             }
+
+            player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1 ,1);
 
             BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             if (isAffected(player.getUniqueId(), ps)) {

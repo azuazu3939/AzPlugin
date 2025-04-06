@@ -107,8 +107,8 @@ public class SetDropCommand implements TabExecutor {
                 return Arrays.stream(Material.values()).map(Enum::toString).toList();
             } else {
                 List<String> list = new ArrayList<>();
-                for (String mat : Arrays.stream(Material.values()).map(Enum::toString).toList()) {
-                    if (arg.toUpperCase().contains(mat)){
+                for (String mat : new ArrayList<>(Arrays.stream(Material.values()).map(Enum::toString).toList())) {
+                    if (mat.toUpperCase().contains(arg.toUpperCase())) {
                         list.add(mat);
                     }
                 }
@@ -120,8 +120,8 @@ public class SetDropCommand implements TabExecutor {
                 return MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList();
             } else {
                 List<String> list = new ArrayList<>();
-                for (String mat : MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList()) {
-                    if (arg.toLowerCase().contains(mat.toLowerCase())){
+                for (String mat : new ArrayList<>(MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList())) {
+                    if (mat.toLowerCase().contains(arg.toLowerCase())) {
                         list.add(mat);
                     }
                 }

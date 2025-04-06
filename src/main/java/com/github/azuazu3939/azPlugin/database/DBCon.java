@@ -40,16 +40,16 @@ public class DBCon {
     }
 
     public static void createTables() throws SQLException {
-        runPrepareStatement("CREATE  TABLE IF NOT EXISTS `" + LOCATION + "` (\n" +
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + LOCATION + "` (\n" +
                 "`name` varchar(36) NOT NULL, \n" +
-                "`x` int UNSIGNED, \n" +
-                "`y` smallint UNSIGNED, \n" +
-                "`z` int UNSIGNED, \n" +
+                "`x` int, \n" +
+                "`y` smallint, \n" +
+                "`z` int, \n" +
                 "`tick` int DEFAULT 200, \n" +
                 "`mmid` varchar(128) NOT NULL, \n" +
-                "`amount` tinyint UNSIGNED,  \n" +
+                "`amount` tinyint,  \n" +
                 "`material` varchar(32), \n" +
-                "`chance` double UNSIGNED, \n" +
+                "`chance` double, \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
                 ")", PreparedStatement::execute);
 

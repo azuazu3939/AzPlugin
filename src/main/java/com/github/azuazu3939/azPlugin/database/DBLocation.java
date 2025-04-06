@@ -26,7 +26,7 @@ public class DBLocation extends DBCon {
         try {
             runPrepareStatement("INSERT INTO `" + LOCATION + "` " +
                     "(`name`, `x`, `y`, `z`, `tick`, `mmid`, `amount`, `material`, `chance`)" +
-                    " VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
+                    " VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
                     "`tick` = ?, `mmid` = ?, `amount` = ?, `material` = ?, `chance` =?;", preparedStatement -> {
 
                 preparedStatement.setString(1, loc.getWorld().getName());
