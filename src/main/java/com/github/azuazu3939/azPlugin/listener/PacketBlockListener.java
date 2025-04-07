@@ -12,7 +12,6 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -53,14 +52,14 @@ public class PacketBlockListener implements Listener {
     public void onBlockBreak(@NotNull BlockBreakEvent event) {
         Block block = event.getBlock();
         if (!block.getWorld().getName().toLowerCase().contains("open")) return;
-        process(event.getPlayer(), block.getLocation(), Material.BEDROCK);
+        process(event.getPlayer(), block.getLocation());
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(@NotNull BlockPlaceEvent event) {
         Block block = event.getBlock();
         if (!block.getWorld().getName().toLowerCase().contains("open")) return;
-        process(event.getPlayer(), block.getLocation(), event.getBlockPlaced().getType());
+        process(event.getPlayer(), block.getLocation());
     }
 
     @EventHandler
@@ -73,13 +72,21 @@ public class PacketBlockListener implements Listener {
         clear(event.getPlayer());
     }
 
-    private void process(@NotNull Player player, @NotNull Location loc, Material material) {
+    private void process(@NotNull Player player, @NotNull Location loc) {
         Optional<LocationAction> op = DBLocation.getLocationAction(loc);
         if (op.isPresent()) {
             LocationAction action = op.get();
             long tick;
             String mmid = action.mmid();
             Random ran = new Random();
+
+            BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            if (isAffected(player.getUniqueId(), ps)) {
+                AzPlugin.getInstance().runAsync(() ->
+                        PacketHandler.changeBlock(player, ps, action.ct_material()));
+                return;
+            }
+
             if (mmid != null && ran.nextDouble() < action.chance()) {
                 tick = action.tick();
                 ItemStack item = MythicBukkit.inst().getItemManager().getItemStack(mmid, action.amount());
@@ -95,15 +102,8 @@ public class PacketBlockListener implements Listener {
 
             player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1 ,1);
 
-            BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-            if (isAffected(player.getUniqueId(), ps)) {
-                AzPlugin.getInstance().runAsync(() ->
-                        PacketHandler.changeBlock(player, ps, material));
-                return;
-            }
-
             AzPlugin.getInstance().runAsyncLater(() -> {
-                PacketHandler.changeBlock(player, ps, material);
+                PacketHandler.changeBlock(player, ps, action.ct_material());
                 if (tick > 0) {
                     put(player.getUniqueId(), ps, tick);
                 }

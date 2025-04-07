@@ -50,6 +50,7 @@ public class DBCon {
                 "`amount` tinyint,  \n" +
                 "`material` varchar(32), \n" +
                 "`chance` double, \n" +
+                "`ct_material` varchar(32), \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
                 ")", PreparedStatement::execute);
 

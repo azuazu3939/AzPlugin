@@ -63,10 +63,6 @@ public class MythicListener implements Listener {
             case "fake":
                 event.register(new Fake(event.getConfig()));
                 break;
-            case "packetblock", "packetb", "pb":
-                event.register(new PacketBlock(event.getConfig()));
-            case "packetitemstack", "packetitem", "packeti", "pi":
-                event.register(new PacketItem(event.getConfig()));
             default:
                 // 未知の条件には何もしません
                 break;

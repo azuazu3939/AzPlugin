@@ -18,16 +18,16 @@ public class DBLocation extends DBCon {
 
     public static final int DEFAULT_TICK = 200;
 
-    public static void updateLocationAsync(Location loc, int tick, String mmid, int amount, Material material, double chance) {
-        AzPlugin.getInstance().runAsync(()-> updateLocationSync(loc, tick, mmid, amount, material, chance));
+    public static void updateLocationAsync(Location loc, int tick, String mmid, int amount, Material material, double chance, Material ct_material) {
+        AzPlugin.getInstance().runAsync(()-> updateLocationSync(loc, tick, mmid, amount, material, chance, ct_material));
     }
 
-    public static void updateLocationSync(Location loc, int tick, String mmid, int amount, Material material, double chance) {
+    public static void updateLocationSync(Location loc, int tick, String mmid, int amount, Material material, double chance, Material ct_material) {
         try {
             runPrepareStatement("INSERT INTO `" + LOCATION + "` " +
-                    "(`name`, `x`, `y`, `z`, `tick`, `mmid`, `amount`, `material`, `chance`)" +
-                    " VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
-                    "`tick` = ?, `mmid` = ?, `amount` = ?, `material` = ?, `chance` =?;", preparedStatement -> {
+                    "(`name`, `x`, `y`, `z`, `tick`, `mmid`, `amount`, `material`, `chance`, `ct_material`)" +
+                    " VALUES (?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
+                    "`tick` = ?, `mmid` = ?, `amount` = ?, `material` = ?, `chance` =?, `ct_material` =?;", preparedStatement -> {
 
                 preparedStatement.setString(1, loc.getWorld().getName());
                 preparedStatement.setInt(2, loc.getBlockX());
@@ -38,17 +38,19 @@ public class DBLocation extends DBCon {
                 preparedStatement.setInt(7, amount);
                 preparedStatement.setString(8, material == null ? null : material.toString());
                 preparedStatement.setDouble(9, chance);
-                preparedStatement.setInt(10, tick);
-                preparedStatement.setString(11, mmid);
-                preparedStatement.setInt(12, amount);
-                preparedStatement.setString(13, material == null ? null : material.toString());
-                preparedStatement.setDouble(14, chance);
+                preparedStatement.setString(10, ct_material == null ? null : ct_material.toString());
+                preparedStatement.setInt(11, tick);
+                preparedStatement.setString(12, mmid);
+                preparedStatement.setInt(13, amount);
+                preparedStatement.setString(14, material == null ? null : material.toString());
+                preparedStatement.setDouble(15, chance);
+                preparedStatement.setString(16, ct_material == null ? null : ct_material.toString());
                 preparedStatement.execute();
             });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        LOCATION_ACTION.put(loc, new LocationAction(tick, mmid, amount, material, chance));
+        LOCATION_ACTION.put(loc, new LocationAction(tick, mmid, amount, material, chance, ct_material));
     }
 
     @NotNull
@@ -66,11 +68,14 @@ public class DBLocation extends DBCon {
                         try (ResultSet rs = preparedStatement.executeQuery()) {
                             if (rs.next()) {
                                 Material m = rs.getString("material") == null ? null : Material.valueOf(rs.getString("material").toUpperCase());
+                                Material cm = rs.getString("ct_material") == null ? null : Material.valueOf(rs.getString("ct_material").toUpperCase());
                                 LOCATION_ACTION.put(loc, new LocationAction(
                                         rs.getInt("tick"),
                                         rs.getString("mmid"),
                                         rs.getInt("amount"),
-                                        m, rs.getDouble("chance")));
+                                        m,
+                                        rs.getDouble("chance"),
+                                        cm));
                             }
                         }
 

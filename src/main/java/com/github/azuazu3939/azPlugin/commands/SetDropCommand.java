@@ -26,7 +26,7 @@ public class SetDropCommand implements TabExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (!(commandSender instanceof Player player)) return false;
         if (strings.length < 2) {
-            player.sendMessage(Component.text("///setDrop [<Material>)] [<mmid>] <amount(1to64>> <chance(0to1)> <reMineTick(default 200)>"));
+            player.sendMessage(Component.text("///setDrop [<Material>)] [<mmid>] <amount(1to64>> <chance(0to1)> <reMineTick(default 200)> <ct_material(CTのマテリアルデフォ岩盤>"));
             return true;
         }
         BoundingBox box = PositionCommand.getArea(player);
@@ -67,9 +67,21 @@ public class SetDropCommand implements TabExecutor {
             }
         }
 
+        Material ct_material = Material.BEDROCK;
+        if (strings.length >= 6) {
+            try {
+                Material mm = Material.valueOf(strings[5].toUpperCase());
+                if (mm != null && mm.isBlock()) {
+                    ct_material = mm;
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
         int finalTick = tick;
         int finalAmount = amount;
         double finalChance = chance;
+        Material finalCt_material = ct_material;
         AzPlugin.getInstance().runAsync(()-> {
             if (player == null) return;
             World world = player.getWorld();
@@ -90,7 +102,7 @@ public class SetDropCommand implements TabExecutor {
 
             int i = 2;
             for (Location loc : locations) {
-                AzPlugin.getInstance().runAsyncLater(()-> DBLocation.updateLocationSync(loc, finalTick, mmid, finalAmount, material, finalChance), i);
+                AzPlugin.getInstance().runAsyncLater(()-> DBLocation.updateLocationSync(loc, finalTick, mmid, finalAmount, material, finalChance, finalCt_material), i);
                 i += 2;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);
