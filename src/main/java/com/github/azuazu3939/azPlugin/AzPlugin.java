@@ -35,7 +35,6 @@ public final class AzPlugin extends JavaPlugin {
         instance = this;
         saveDefaultConfig();
 
-        //registerDB();
         registerListeners();
         registerCommands();
 
@@ -88,6 +87,7 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("//pos1")).setExecutor(new PositionCommand());
         Objects.requireNonNull(getCommand("//pos2")).setExecutor(new PositionCommand());
         Objects.requireNonNull(getCommand("//setDrop")).setExecutor(new SetDropCommand());
+        Objects.requireNonNull(getCommand("azcraft")).setExecutor(new AzCraftCommand());
     }
 
     private void onlinePlayer() {

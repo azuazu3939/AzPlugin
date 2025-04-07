@@ -10,7 +10,6 @@ import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.managers.storage.StorageException;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,16 +38,14 @@ public class MVWorldListener implements Listener {
         String worldName = world.getName();
 
         if (!isResourceWorld(worldName)) return;
-        RESET_WORLD_NAMES.add(worldName);
-
-        World bukkitWorld = world.getCBWorld();
-        RegionManager regionManager = getRegionManager(bukkitWorld);
+        RegionManager regionManager = getRegionManager(world.getCBWorld());
         if (regionManager == null) return;
 
         ProtectedRegion globalRegion = regionManager.getRegion(ProtectedRegion.GLOBAL_REGION);
         ProtectedRegion spawnRegion = regionManager.getRegion("spawn");
         if (globalRegion == null || spawnRegion == null) return;
 
+        RESET_WORLD_NAMES.add(worldName);
         regenerateAndApplyFlags(worldName, world, globalRegion, spawnRegion);
     }
 
@@ -90,7 +87,6 @@ public class MVWorldListener implements Listener {
             if (MythicListener.isMythic()) {
                 MythicListener.reloadMythic(100);
             }
-            loadChunks(world);
             RESET_WORLD_NAMES.remove(worldName);
         }, 20);
     }
@@ -98,18 +94,6 @@ public class MVWorldListener implements Listener {
     private void handleWorldCreationFailure(String worldName) {
         plugin.getLogger().info(worldName + "の生成に失敗しました。");
         RESET_WORLD_NAMES.remove(worldName);
-    }
-
-    private void loadChunks(@NotNull World world) {
-        plugin.runLater(() -> {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "chunky radius 50");
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "chunky start " + world.getName());
-            Bukkit.broadcast(Component.text("§b§l事前チャンクロードを準備中です…"));
-            plugin.runLater(() -> {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "fcp start 2000 " + world.getName() + " 0 0");
-                Bukkit.broadcast(Component.text("§a§l事前チャンクロードを開始しました！"));
-            }, 100);
-        }, 200);
     }
 
     private void applyWorldGuardFlags(World world, Map<Flag<?>, Object> globalFlags, Map<Flag<?>, Object> spawnFlags) {
@@ -144,35 +128,18 @@ public class MVWorldListener implements Listener {
         world.setGameRule(GameRule.SPAWN_CHUNK_RADIUS, 0);
         world.setGameRule(GameRule.GLOBAL_SOUND_EVENTS, false);
         world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        world.setGameRule(GameRule.MOB_GRIEFING, false);
+        world.setGameRule(GameRule.DISABLE_RAIDS, true);
+        world.setGameRule(GameRule.DO_WARDEN_SPAWNING, false);
         world.setPVP(false);
+        world.setVoidDamageAmount(1000);
+        world.setVoidDamageMinBuildHeightOffset(0);
         world.setDifficulty(difficulty);
         world.setSpawnLocation(0, 64, 0);
         world.getWorldBorder().setCenter(0, 0);
-
-        if (!world.getName().contains("resource")) {
-            configureWorldNotResourceSettings(world);
-        } else {
-            configureWorldResourceSettings(world);
-        }
-    }
-
-    private static void configureWorldNotResourceSettings(@NotNull World world) {
-        world.setGameRule(GameRule.DO_PATROL_SPAWNING, false);
-        world.setGameRule(GameRule.DO_WARDEN_SPAWNING, false);
-        world.setGameRule(GameRule.DISABLE_RAIDS, true);
-        world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-        world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-        world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        world.setViewDistance(6);
-        world.setSimulationDistance(4);
-    }
-
-    private static void configureWorldResourceSettings(@NotNull World world) {
-        world.getWorldBorder().setSize(50);
-        world.getWorldBorder().setSize(10000, 3600);
-        world.setGameRule(GameRule.MAX_ENTITY_CRAMMING, 7);
+        world.getWorldBorder().setSize(10000);
         world.setGameRule(GameRule.PLAYERS_SLEEPING_PERCENTAGE, 1);
         world.setViewDistance(8);
-        world.setSimulationDistance(4);
+        world.setSimulationDistance(6);
     }
 }
