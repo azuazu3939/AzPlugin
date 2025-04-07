@@ -34,7 +34,7 @@ public class PacketHandler {
 
     private static final String NAME = "az";
 
-    private static void sendPacket(Player p, net.minecraft.network.protocol.Packet<?> packet) {
+    public static void sendPacket(Player p, net.minecraft.network.protocol.Packet<?> packet) {
         ((CraftPlayer) p).getHandle().connection.sendPacket(packet);
     }
 
