@@ -4,7 +4,6 @@ import net.kyori.adventure.text.Component;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -69,7 +68,7 @@ public class ShowCaseBuilder implements InventoryHolder {
 
     @NotNull
     public static ItemStack getEmpty() {
-        return ItemStack.fromBukkitCopy( new org.bukkit.inventory.ItemStack(Material.AIR));
+        return ItemStack.fromBukkitCopy(null);
     }
 
     public static boolean checkHolder(@NotNull Inventory inv) {

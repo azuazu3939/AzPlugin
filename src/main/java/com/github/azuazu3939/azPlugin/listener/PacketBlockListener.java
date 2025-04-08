@@ -11,7 +11,6 @@ import com.google.common.collect.Multimap;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -45,21 +44,21 @@ public class PacketBlockListener implements Listener {
         Player player = event.getPlayer();
         if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return;
         Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 2);
-        DBLocation.getLocationAction(block.getLocation());
+        DBLocation.getLocationAction(block);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(@NotNull BlockBreakEvent event) {
         Block block = event.getBlock();
         if (!block.getWorld().getName().toLowerCase().contains("open")) return;
-        process(event.getPlayer(), block.getLocation());
+        process(event.getPlayer(), block);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(@NotNull BlockPlaceEvent event) {
         Block block = event.getBlock();
         if (!block.getWorld().getName().toLowerCase().contains("open")) return;
-        process(event.getPlayer(), block.getLocation());
+        process(event.getPlayer(), block);
     }
 
     @EventHandler
@@ -72,15 +71,15 @@ public class PacketBlockListener implements Listener {
         clear(event.getPlayer());
     }
 
-    private void process(@NotNull Player player, @NotNull Location loc) {
-        Optional<LocationAction> op = DBLocation.getLocationAction(loc);
+    private void process(@NotNull Player player, @NotNull Block block) {
+        Optional<LocationAction> op = DBLocation.getLocationAction(block);
         if (op.isPresent()) {
             LocationAction action = op.get();
             long tick;
             String mmid = action.mmid();
             Random ran = new Random();
 
-            BlockPos ps = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            BlockPos ps = new BlockPos(block.getX(), block.getY(), block.getZ());
             if (isAffected(player.getUniqueId(), ps)) {
                 AzPlugin.getInstance().runAsync(() ->
                         PacketHandler.changeBlock(player, ps, action.ct_material()));

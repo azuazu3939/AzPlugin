@@ -9,6 +9,7 @@ import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -108,20 +109,31 @@ public class PacketHandler {
         }
     }
 
-    public static void sendItemPacket(@NotNull Player player, int container, int state, int size, long scale) {
+    public static void sendItemPacket(@NotNull Player player, int container, int state, long scale) {
         NoAction.add(player.getUniqueId());
-        long delay = size * scale;
-        for (int i = 0; i < size; i++) {
-            ClientboundContainerSetSlotPacket set = new ClientboundContainerSetSlotPacket(container, state, i, ShowCaseBuilder.get(player.getUniqueId()).items().get(i));
+        NonNullList<ItemStack> list = ShowCaseBuilder.get(player.getUniqueId()).items();
+        long delay = list.size() * scale;
+        if (!list.isEmpty()) {
+            sendContainerItemPacket(player, container, state, scale, list);
+        }
+        long finish = delay + 6 * scale + 1;
+        sendCursorItemPacket(player, state, finish);
+    }
+
+    private static void sendContainerItemPacket(@NotNull Player player, int container, int state, long scale, @NotNull NonNullList<ItemStack> list) {
+        for (int i = 0; i < list.size(); i++) {
+            ClientboundContainerSetSlotPacket set = new ClientboundContainerSetSlotPacket(container, state, i, list.get(i));
             int finalI = i;
             AzPlugin.getInstance().runAsyncLater(()-> {
                 PacketHandler.sendPacket(player, set);
                 if (finalI % 2 == 0) {
                     player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 0.2F,  (float) (0.75 + finalI * 0.01));
                 }
-            }, i * scale);
+            }, i * scale + 1);
         }
-        long finish = delay + 6 * scale;
+    }
+
+    private static void sendCursorItemPacket(@NotNull Player player, int state, long finish) {
         ClientboundContainerSetSlotPacket cursor = new ClientboundContainerSetSlotPacket(-1, state, -1, ShowCaseBuilder.getEmpty());
         AzPlugin.getInstance().runAsyncLater(()->
                 PacketHandler.sendPacket(player, cursor), finish);

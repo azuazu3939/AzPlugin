@@ -7,9 +7,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
-import org.bukkit.craftbukkit.inventory.CraftContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
@@ -31,12 +32,13 @@ public class ChannelListener extends ChannelDuplexHandler {
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         // server -> client
         if (msg instanceof ClientboundOpenScreenPacket packet) {
-            CraftContainer cc = new CraftContainer(player.getOpenInventory(), sp, packet.getContainerId());
+            ChestMenu cc = getCraftContainer(packet.getContainerId());
             Inventory inv = cc.getBukkitView().getTopInventory();
             if (ShowCaseBuilder.checkHolder(inv)) {
-                PacketHandler.sendItemPacket(player, packet.getContainerId(), cc.incrementStateId(), inv.getSize(), 1);
+                PacketHandler.sendItemPacket(player, packet.getContainerId(), cc.getStateId(), 1);
             }
         }
+
         super.write(ctx, msg, promise);
     }
 
@@ -44,9 +46,10 @@ public class ChannelListener extends ChannelDuplexHandler {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         // client -> server
         if (msg instanceof ServerboundUseItemOnPacket packet) {
-            if (PacketBlockListener.isAffected(player.getUniqueId(), packet.getHitResult().getBlockPos())) return;
+            BlockHitResult result = packet.getHitResult();
+            if (result != null && PacketBlockListener.isAffected(player.getUniqueId(), result.getBlockPos())) return;
 
-        } else  if (msg instanceof ServerboundContainerClickPacket packet) {
+        } else if (msg instanceof ServerboundContainerClickPacket packet) {
 
             InventoryView view = getCraftContainer(packet.getContainerId()).getBukkitView();
             Inventory top = view.getTopInventory();
@@ -54,7 +57,7 @@ public class ChannelListener extends ChannelDuplexHandler {
             if (ShowCaseBuilder.checkHolder(top)) {
                 for (int i : packet.getChangedSlots().keySet()) {
 
-                    AzPlugin.getInstance().runAsyncLater(()-> {
+                    AzPlugin.getInstance().runAsyncLater(() -> {
                         PacketHandler.sendSetSlot(player, -1, packet.getStateId(), -1, ShowCaseBuilder.getEmpty());
 
                         ItemStack item = (i < top.getSize()) ? ShowCaseBuilder.get(player.getUniqueId()).items().get(i) : ItemStack.fromBukkitCopy(view.getItem(i));
@@ -76,7 +79,20 @@ public class ChannelListener extends ChannelDuplexHandler {
 
     @NotNull
     @Contract("_ -> new")
-    private CraftContainer getCraftContainer(int containerId) {
-        return new CraftContainer(player.getOpenInventory(), sp, containerId);
+    private ChestMenu getCraftContainer(int containerId) {
+        int row = player.getOpenInventory().getTopInventory().getSize() / 9;
+        if (row == 1) {
+            return ChestMenu.oneRow(containerId, sp.getInventory());
+        } else if (row == 2) {
+            return ChestMenu.twoRows(containerId, sp.getInventory());
+        } else if (row == 3) {
+            return ChestMenu.threeRows(containerId, sp.getInventory());
+        } else if (row == 4) {
+            return ChestMenu.fourRows(containerId, sp.getInventory());
+        } else if (row == 5) {
+            return ChestMenu.fiveRows(containerId, sp.getInventory());
+        } else {
+            return ChestMenu.sixRows(containerId, sp.getInventory());
+        }
     }
 }

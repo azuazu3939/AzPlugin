@@ -4,6 +4,7 @@ import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.lib.LocationAction;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -54,17 +55,22 @@ public class DBLocation extends DBCon {
     }
 
     @NotNull
-    public static Optional<LocationAction> getLocationAction(Location loc) {
+    public static Optional<LocationAction> getLocationAction(@NotNull Block block) {
+        Location loc = block.getLocation();
         if (LOCATION_ACTION.containsKey(loc)) {
             return Optional.of(LOCATION_ACTION.get(loc));
         } else {
+            String name = block.getWorld().getName();
+            int x = loc.getBlockX();
+            int y = loc.getBlockY();
+            int z = loc.getBlockZ();
             AzPlugin.getInstance().runAsync(()-> {
                 try {
                     runPrepareStatement("SELECT * FROM `" + LOCATION + "` WHERE `name` = ? AND `x` = ? AND `y` = ? AND `z` = ?", preparedStatement -> {
-                        preparedStatement.setString(1, loc.getWorld().getName());
-                        preparedStatement.setInt(2, loc.getBlockX());
-                        preparedStatement.setInt(3, loc.getBlockY());
-                        preparedStatement.setInt(4, loc.getBlockZ());
+                        preparedStatement.setString(1, name);
+                        preparedStatement.setInt(2, x);
+                        preparedStatement.setInt(3, y);
+                        preparedStatement.setInt(4, z);
                         try (ResultSet rs = preparedStatement.executeQuery()) {
                             if (rs.next()) {
                                 Material m = rs.getString("material") == null ? null : Material.valueOf(rs.getString("material").toUpperCase());
