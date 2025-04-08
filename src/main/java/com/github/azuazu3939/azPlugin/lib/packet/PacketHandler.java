@@ -1,6 +1,7 @@
-package com.github.azuazu3939.azPlugin.lib;
+package com.github.azuazu3939.azPlugin.lib.packet;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.github.azuazu3939.azPlugin.lib.ShowCaseBuilder;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitBlock;

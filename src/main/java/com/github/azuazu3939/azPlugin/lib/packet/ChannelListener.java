@@ -1,6 +1,7 @@
-package com.github.azuazu3939.azPlugin.lib;
+package com.github.azuazu3939.azPlugin.lib.packet;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.github.azuazu3939.azPlugin.lib.ShowCaseBuilder;
 import com.github.azuazu3939.azPlugin.listener.PacketBlockListener;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;

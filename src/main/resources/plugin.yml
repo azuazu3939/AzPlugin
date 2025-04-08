@@ -61,8 +61,15 @@ commands:
     permission: azplugin.command.pos1
   //pos2:
     permission: azplugin.command.pos2
-  //setDrop:
-    permission: azplugin.command.setdrop
+  //setItemStack:
+    permission: azplugin.command.setitemdrop
+    aliases:
+      - setitem
+      - setdrop
+  //setShop:
+    permission: azplugin.command.setshop
+    aliases:
+      - setsh
   azcraft:
     permission: azplugin.command.azcraft
     aliases:
@@ -90,8 +97,9 @@ permissions:
       azplugin.command.viewer: true
       azplugin.command.pos1: true
       azplugin.command.pos2: true
-      azplugin.command.setdro: true
+      azplugin.command.setitemdrop: true
       azplugin.command.azcraft: true
+      azplugin.command.setshop: true
   azplugin.reload.mythicmobs:
     default: op
   azplugin.command.setmaxmana:
@@ -116,7 +124,9 @@ permissions:
     default: op
   azplugin.command.pos2:
     default: op
-  azplugin.command.setdrop:
+  azplugin.command.setitemdrop:
     default: op
   azplugin.command.azcraft:
+    default: op
+  azplugin.command.setshop:
     default: op

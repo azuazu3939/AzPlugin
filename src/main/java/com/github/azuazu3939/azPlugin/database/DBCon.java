@@ -14,11 +14,13 @@ public class DBCon {
 
     protected static HikariDataSource dataSource;
 
-    protected static String LOCATION;
+    protected static String BREAK;
+    protected static String INTERACT;
 
     public static void init() throws SQLException {
         if (!AzPlugin.getInstance().getConfig().getBoolean("Database.use")) return;
-        LOCATION = AzPlugin.getInstance().getConfig().getString("Database.location");
+        BREAK = AzPlugin.getInstance().getConfig().getString("Database.break");
+        INTERACT = AzPlugin.getInstance().getConfig().getString("Database.interact");
 
         new org.mariadb.jdbc.Driver();
         HikariConfig config = new HikariConfig();
@@ -40,7 +42,7 @@ public class DBCon {
     }
 
     public static void createTables() throws SQLException {
-        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + LOCATION + "` (\n" +
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + BREAK + "` (\n" +
                 "`name` varchar(36) NOT NULL, \n" +
                 "`x` int, \n" +
                 "`y` smallint, \n" +
@@ -48,10 +50,20 @@ public class DBCon {
                 "`tick` int DEFAULT 200, \n" +
                 "`mmid` varchar(128) NOT NULL, \n" +
                 "`amount` tinyint,  \n" +
-                "`material` varchar(32), \n" +
                 "`chance` double, \n" +
                 "`ct_material` varchar(32), \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INTERACT + "` (\n" +
+                "`name` varchar(36) NOT NULL , \n" +
+                "`x` int, \n" +
+                "`y` smallint, \n" +
+                "`z` int, \n" +
+                "`shop_key` varchar(36) NOT NULL, \n" +
+                "`slot` tinyint, \n" +
+                "`item` blob, \n" +
+                "`cursor` blob, \n" +
+                "PRIMARY KEY (`name`, `x`, `y`, `z`, `shop_key`, `slot`)\n" +
                 ")", PreparedStatement::execute);
 
     }

@@ -1,26 +1,24 @@
 package com.github.azuazu3939.azPlugin.commands;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.database.DBLocation;
+import com.github.azuazu3939.azPlugin.database.DBBlockBreak;
+import com.github.azuazu3939.azPlugin.util.SetCommandUtil;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class SetDropCommand implements TabExecutor {
+public class SetItemStackCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
@@ -84,25 +82,11 @@ public class SetDropCommand implements TabExecutor {
         Material finalCt_material = ct_material;
         AzPlugin.getInstance().runAsync(()-> {
             if (player == null) return;
-            World world = player.getWorld();
-            Set<Location> locations = new HashSet<>();
-
-            Vector min = box.getMin();
-            Vector max = box.getMax();
-            for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-                for (int y = min.getBlockY(); y <= max.getBlockY(); y++) {
-                    for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-
-                        Block b = world.getBlockAt(x, y, z);
-                        if (b.getType() != material) continue;
-                        locations.add(b.getLocation());
-                    }
-                }
-            }
+            Set<Location> locations = SetCommandUtil.getLocations(player, box, material);
 
             int i = 2;
             for (Location loc : locations) {
-                AzPlugin.getInstance().runAsyncLater(()-> DBLocation.updateLocationSync(loc, finalTick, mmid, finalAmount, material, finalChance, finalCt_material), i);
+                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationSync(loc, finalTick, mmid, finalAmount, finalChance, finalCt_material), i);
                 i += 2;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);

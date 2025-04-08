@@ -1,77 +1,65 @@
 package com.github.azuazu3939.azPlugin.lib;
 
-import net.kyori.adventure.text.Component;
+import com.github.azuazu3939.azPlugin.lib.holder.AbstractAzHolder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ShowCaseBuilder implements InventoryHolder {
+public class ShowCaseBuilder {
 
-    public record Data(NonNullList<ItemStack> items, ItemStack cursor) {}
+    public static final class Data {
 
-    private final Inventory inv;
+        private static int overAllCount = 0;
+        private final int count;
+        public final NonNullList<ItemStack> items;
+        public final ItemStack cursor;
+
+        public Data(NonNullList<ItemStack> items, ItemStack cursor) {
+            this.items = items;
+            this.cursor = cursor;
+            overAllCount++;
+            count = overAllCount;
+        }
+
+        public int count() {return count;}
+
+        public NonNullList<ItemStack> items() {return items;}
+
+        public ItemStack cursor() {return cursor;}
+
+        @Override
+        public boolean equals(@Nullable Object o) {
+            if (!(o instanceof Data data)) return false;
+            return data.count() == this.count;
+        }
+    }
 
     private static final Map<UUID, Data> TEMP = new ConcurrentHashMap<>();
 
-    public ShowCaseBuilder(@NotNull Player player, int rowSize, String name, @NotNull List<org.bukkit.inventory.ItemStack> items, @Nullable org.bukkit.inventory.ItemStack cursor) {
-        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, rowSize)), Component.text(name));
-
-        NonNullList<ItemStack> newItems = NonNullList.create();
-        for (org.bukkit.inventory.ItemStack item : items) {
-            newItems.add(ItemStack.fromBukkitCopy(item));
-        }
-        TEMP.put(player.getUniqueId(), new Data(newItems, ItemStack.fromBukkitCopy(cursor)));
-
+    public ShowCaseBuilder(@NotNull Player player, @NotNull AbstractAzHolder azHolder) {
+        Data data = new Data(azHolder.itemList(), azHolder.item());
+        TEMP.put(player.getUniqueId(), data);
         player.closeInventory();
-        player.openInventory(inv);
-    }
-
-    public ShowCaseBuilder(Player player, int rowSize, String name, @NotNull Inventory inventory, @Nullable org.bukkit.inventory.ItemStack cursor) {
-        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, rowSize)), Component.text(name));
-
-        NonNullList<ItemStack> newItems = NonNullList.create();
-        for (org.bukkit.inventory.ItemStack item : inventory.getContents()) {
-            newItems.add(ItemStack.fromBukkitCopy(item));
-        }
-        TEMP.put(player.getUniqueId(), new Data(newItems, ItemStack.fromBukkitCopy(cursor)));
-
-        player.closeInventory();
-        player.openInventory(inv);
-    }
-
-    @NotNull
-    @Override
-    public Inventory getInventory() {
-        return inv;
+        player.openInventory(azHolder.getInventory());
     }
 
     @NotNull
     @Contract("_ -> new")
-    public static Data get(UUID uuid) {
-        return (TEMP.containsKey(uuid)) ? TEMP.get(uuid) : new Data(NonNullList.create(), ItemStack.EMPTY);
-    }
+    public static Data get(UUID uuid) {return (TEMP.containsKey(uuid)) ? TEMP.get(uuid) : new Data(NonNullList.create(), getEmpty());}
 
-    public static void remove(UUID uuid) {
-        TEMP.remove(uuid);
-    }
+    public static void remove(UUID uuid) {TEMP.remove(uuid);}
 
     @NotNull
-    public static ItemStack getEmpty() {
-        return ItemStack.fromBukkitCopy(null);
-    }
+    public static ItemStack getEmpty() {return ItemStack.fromBukkitCopy(null);}
 
     public static boolean checkHolder(@NotNull Inventory inv) {
-        return inv.getHolder() instanceof ShowCaseBuilder;
+        return inv.getHolder() instanceof AbstractAzHolder;
     }
 }

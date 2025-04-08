@@ -1,9 +1,11 @@
 package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.database.DBLocation;
-import com.github.azuazu3939.azPlugin.lib.LocationAction;
-import com.github.azuazu3939.azPlugin.lib.PacketHandler;
+import com.github.azuazu3939.azPlugin.database.DBBlockBreak;
+import com.github.azuazu3939.azPlugin.database.DBBlockInteract;
+import com.github.azuazu3939.azPlugin.lib.holder.EmptyAzHolder;
+import com.github.azuazu3939.azPlugin.lib.packet.BlockBreakAction;
+import com.github.azuazu3939.azPlugin.lib.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
@@ -44,7 +46,8 @@ public class PacketBlockListener implements Listener {
         Player player = event.getPlayer();
         if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return;
         Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 2);
-        DBLocation.getLocationAction(block);
+        DBBlockBreak.getLocationAction(block);
+        DBBlockInteract.getLocationAction(block, new EmptyAzHolder(6, "テスト").getInventory());
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -72,42 +75,47 @@ public class PacketBlockListener implements Listener {
     }
 
     private void process(@NotNull Player player, @NotNull Block block) {
-        Optional<LocationAction> op = DBLocation.getLocationAction(block);
+        Optional<BlockBreakAction> op = DBBlockBreak.getLocationAction(block);
         if (op.isPresent()) {
-            LocationAction action = op.get();
+            BlockBreakAction action = op.get();
             long tick;
             String mmid = action.mmid();
             Random ran = new Random();
 
             BlockPos ps = new BlockPos(block.getX(), block.getY(), block.getZ());
             if (isAffected(player.getUniqueId(), ps)) {
-                AzPlugin.getInstance().runAsync(() ->
-                        PacketHandler.changeBlock(player, ps, action.ct_material()));
+                cooldown(player, ps, action);
                 return;
             }
 
             if (mmid != null && ran.nextDouble() < action.chance()) {
-                tick = action.tick();
-                ItemStack item = MythicBukkit.inst().getItemManager().getItemStack(mmid, action.amount());
-                Utils.dropItem(player, item);
-                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
-
-            } else if (action.material() != null) {
-                tick = action.tick();
-
-            } else {
-                tick = DBLocation.DEFAULT_TICK;
+                dropItemStack(player, mmid, action);
             }
 
+            tick = action.tick();
             player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1 ,1);
-
-            AzPlugin.getInstance().runAsyncLater(() -> {
-                PacketHandler.changeBlock(player, ps, action.ct_material());
-                if (tick > 0) {
-                    put(player.getUniqueId(), ps, tick);
-                }
-            }, 1);
+            mined(player, ps, action, tick);
         }
+    }
+
+    private void mined(@NotNull Player player, BlockPos ps, BlockBreakAction action, long tick) {
+        AzPlugin.getInstance().runAsyncLater(() -> {
+            PacketHandler.changeBlock(player, ps, action.ct_material());
+            if (tick > 0) {
+                put(player.getUniqueId(), ps, tick);
+            }
+        }, 1);
+    }
+
+    private void dropItemStack(Player player, String mmid, @NotNull BlockBreakAction action) {
+        ItemStack item = MythicBukkit.inst().getItemManager().getItemStack(mmid, action.amount());
+        Utils.dropItem(player, item);
+        player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
+    }
+
+    private void cooldown(@NotNull Player player, BlockPos ps, @NotNull BlockBreakAction action) {
+        AzPlugin.getInstance().runAsync(() ->
+                PacketHandler.changeBlock(player, ps, action.ct_material()));
     }
 
     public static boolean isAffected(UUID uuid, BlockPos pos) {

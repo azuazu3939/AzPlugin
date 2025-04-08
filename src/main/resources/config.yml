@@ -13,4 +13,5 @@ Database:
   database: database
   username: username
   password: password
-  location: location
+  break: break
+  interact: interact
