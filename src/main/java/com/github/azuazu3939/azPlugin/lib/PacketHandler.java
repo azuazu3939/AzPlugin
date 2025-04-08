@@ -9,30 +9,28 @@ import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PacketHandler {
 
     private static final String NAME = "az";
+    private static final Set<UUID> NoAction = ConcurrentHashMap.newKeySet();
 
     public static void sendPacket(Player p, net.minecraft.network.protocol.Packet<?> packet) {
         ((CraftPlayer) p).getHandle().connection.sendPacket(packet);
@@ -108,5 +106,41 @@ public class PacketHandler {
         } catch (Exception e) {
             AzPlugin.getInstance().getLogger().info("Failed to eject packet handler from " + player.getName() + ", are they already disconnected?");
         }
+    }
+
+    public static void sendItemPacket(@NotNull Player player, int container, int state, int size, long scale) {
+        NoAction.add(player.getUniqueId());
+        long delay = size * scale;
+        for (int i = 0; i < size; i++) {
+            ClientboundContainerSetSlotPacket set = new ClientboundContainerSetSlotPacket(container, state, i, ShowCaseBuilder.get(player.getUniqueId()).items().get(i));
+            int finalI = i;
+            AzPlugin.getInstance().runAsyncLater(()-> {
+                PacketHandler.sendPacket(player, set);
+                if (finalI % 2 == 0) {
+                    player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 0.2F,  (float) (0.75 + finalI * 0.01));
+                }
+            }, i * scale);
+        }
+        long finish = delay + 6 * scale;
+        ClientboundContainerSetSlotPacket cursor = new ClientboundContainerSetSlotPacket(-1, state, -1, ShowCaseBuilder.getEmpty());
+        AzPlugin.getInstance().runAsyncLater(()->
+                PacketHandler.sendPacket(player, cursor), finish);
+        AzPlugin.getInstance().runAsyncLater(()-> {
+            player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1F,  0.5F);
+            NoAction.remove(player.getUniqueId());
+        }, finish + 20);
+    }
+
+    public static void sendSetSlot(Player player, int containerId, int state, int slot, ItemStack item) {
+        ClientboundContainerSetSlotPacket set = new ClientboundContainerSetSlotPacket(
+                containerId,
+                state,
+                slot,
+                item);
+        PacketHandler.sendPacket(player, set);
+    }
+
+    public static boolean isNoAction(UUID uuid) {
+        return NoAction.contains(uuid);
     }
 }

@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -24,11 +25,24 @@ public class ShowCaseBuilder implements InventoryHolder {
 
     private static final Map<UUID, Data> TEMP = new ConcurrentHashMap<>();
 
-    public ShowCaseBuilder(@NotNull Player player, int rawSize, String name, @NotNull List<org.bukkit.inventory.ItemStack> items, org.bukkit.inventory.ItemStack cursor) {
-        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, rawSize)), Component.text(name));
+    public ShowCaseBuilder(@NotNull Player player, int rowSize, String name, @NotNull List<org.bukkit.inventory.ItemStack> items, @Nullable org.bukkit.inventory.ItemStack cursor) {
+        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, rowSize)), Component.text(name));
 
         NonNullList<ItemStack> newItems = NonNullList.create();
         for (org.bukkit.inventory.ItemStack item : items) {
+            newItems.add(ItemStack.fromBukkitCopy(item));
+        }
+        TEMP.put(player.getUniqueId(), new Data(newItems, ItemStack.fromBukkitCopy(cursor)));
+
+        player.closeInventory();
+        player.openInventory(inv);
+    }
+
+    public ShowCaseBuilder(Player player, int rowSize, String name, @NotNull Inventory inventory, @Nullable org.bukkit.inventory.ItemStack cursor) {
+        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, rowSize)), Component.text(name));
+
+        NonNullList<ItemStack> newItems = NonNullList.create();
+        for (org.bukkit.inventory.ItemStack item : inventory.getContents()) {
             newItems.add(ItemStack.fromBukkitCopy(item));
         }
         TEMP.put(player.getUniqueId(), new Data(newItems, ItemStack.fromBukkitCopy(cursor)));
@@ -56,5 +70,9 @@ public class ShowCaseBuilder implements InventoryHolder {
     @NotNull
     public static ItemStack getEmpty() {
         return ItemStack.fromBukkitCopy( new org.bukkit.inventory.ItemStack(Material.AIR));
+    }
+
+    public static boolean checkHolder(@NotNull Inventory inv) {
+        return inv.getHolder() instanceof ShowCaseBuilder;
     }
 }

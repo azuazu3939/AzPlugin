@@ -12,13 +12,11 @@ public class DamageColor {
 
     @NotNull
     public static Map<String, String> getColors() {
+        Map<String, String> colors = new HashMap<>();
         Plugin plugin = AzPlugin.getInstance();
-        Map<String, String> map = new HashMap<>();
         ConfigurationSection cs = plugin.getConfig().getConfigurationSection("Colors");
-        if (cs == null) return map;
-        for (String key : cs.getKeys(false)) {
-            map.put(key, plugin.getConfig().getString("Colors." + key));
-        }
-        return map;
+        if (cs == null) return colors;
+        cs.getKeys(false).forEach(key -> colors.put(key, plugin.getConfig().getString("Colors." + key)));
+        return colors;
     }
 }

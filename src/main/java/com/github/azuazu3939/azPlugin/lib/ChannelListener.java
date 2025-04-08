@@ -8,11 +8,12 @@ import io.netty.channel.ChannelPromise;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.Sound;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftContainer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class ChannelListener extends ChannelDuplexHandler {
@@ -32,8 +33,8 @@ public class ChannelListener extends ChannelDuplexHandler {
         if (msg instanceof ClientboundOpenScreenPacket packet) {
             CraftContainer cc = new CraftContainer(player.getOpenInventory(), sp, packet.getContainerId());
             Inventory inv = cc.getBukkitView().getTopInventory();
-            if (checkHolder(inv)) {
-                sendItemPacket(packet.getContainerId(), cc.incrementStateId(), inv.getSize());
+            if (ShowCaseBuilder.checkHolder(inv)) {
+                PacketHandler.sendItemPacket(player, packet.getContainerId(), cc.incrementStateId(), inv.getSize(), 1);
             }
         }
         super.write(ctx, msg, promise);
@@ -46,57 +47,36 @@ public class ChannelListener extends ChannelDuplexHandler {
             if (PacketBlockListener.isAffected(player.getUniqueId(), packet.getHitResult().getBlockPos())) return;
 
         } else  if (msg instanceof ServerboundContainerClickPacket packet) {
-            CraftContainer cc = new CraftContainer(player.getOpenInventory(), sp, packet.getContainerId());
-            Inventory top = cc.getBukkitView().getTopInventory();
-            if (checkHolder(top)) {
+
+            InventoryView view = getCraftContainer(packet.getContainerId()).getBukkitView();
+            Inventory top = view.getTopInventory();
+
+            if (ShowCaseBuilder.checkHolder(top)) {
                 for (int i : packet.getChangedSlots().keySet()) {
 
                     AzPlugin.getInstance().runAsyncLater(()-> {
-                        ItemStack item = (i < top.getSize()) ? ShowCaseBuilder.get(player.getUniqueId()).items().get(i) : ItemStack.fromBukkitCopy(cc.getBukkitView().getItem(i));
-                        sendSetSlot(packet.getContainerId(), packet.getStateId(), i, item);
-                        sendSetSlot(-1, packet.getStateId(), -1, ShowCaseBuilder.getEmpty());
+                        PacketHandler.sendSetSlot(player, -1, packet.getStateId(), -1, ShowCaseBuilder.getEmpty());
+
+                        ItemStack item = (i < top.getSize()) ? ShowCaseBuilder.get(player.getUniqueId()).items().get(i) : ItemStack.fromBukkitCopy(view.getItem(i));
+
+                        if (PacketHandler.isNoAction(player.getUniqueId())) return;
+                        PacketHandler.sendSetSlot(player, packet.getContainerId(), packet.getStateId(), i, item);
                     }, 1);
                 }
                 return;
             }
         } else if (msg instanceof ServerboundContainerClosePacket packet) {
-            CraftContainer cc = new CraftContainer(player.getOpenInventory(), sp, packet.getContainerId());
-            Inventory top = cc.getBukkitView().getTopInventory();
-            if (checkHolder(top)) {
+            Inventory top = getCraftContainer(packet.getContainerId()).getBukkitView().getTopInventory();
+            if (ShowCaseBuilder.checkHolder(top)) {
                 ShowCaseBuilder.remove(player.getUniqueId());
             }
         }
         super.channelRead(ctx, msg);
     }
 
-    private void sendSetSlot(int containerId, int state, int slot, ItemStack item) {
-        ClientboundContainerSetSlotPacket set = new ClientboundContainerSetSlotPacket(
-                containerId,
-                state,
-                slot,
-                item);
-        PacketHandler.sendPacket(player, set);
-    }
-
-    private boolean checkHolder(@NotNull Inventory inv) {
-        return inv.getHolder() instanceof ShowCaseBuilder;
-    }
-
-    private void sendItemPacket(int container, int state, int size) {
-        for (int i = 0; i < size; i++) {
-            ClientboundContainerSetSlotPacket set = new ClientboundContainerSetSlotPacket(container, state, i, ShowCaseBuilder.get(player.getUniqueId()).items().get(i));
-            int finalI = i;
-            AzPlugin.getInstance().runAsyncLater(()-> {
-                PacketHandler.sendPacket(player, set);
-                if (finalI % 2 == 0) {
-                    player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 0.2F,  (float) (0.75 + finalI * 0.01));
-                }
-            }, i);
-        }
-        ClientboundContainerSetSlotPacket cursor = new ClientboundContainerSetSlotPacket(-1, state, -1, ShowCaseBuilder.getEmpty());
-        AzPlugin.getInstance().runAsyncLater(()->
-                PacketHandler.sendPacket(player, cursor), 60);
-        AzPlugin.getInstance().runAsyncLater(()->
-                player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1F,  0.5F), 74);
+    @NotNull
+    @Contract("_ -> new")
+    private CraftContainer getCraftContainer(int containerId) {
+        return new CraftContainer(player.getOpenInventory(), sp, containerId);
     }
 }
