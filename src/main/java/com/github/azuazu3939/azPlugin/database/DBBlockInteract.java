@@ -28,6 +28,7 @@ public class DBBlockInteract extends DBCon {
                 preparedStatement.setInt(3, set.y());
                 preparedStatement.setInt(4, set.z());
                 preparedStatement.setString(5, key);
+                preparedStatement.setString(6, key);
                 preparedStatement.execute();
                 INTERACT_ACTION.put(set, key);
                 setInteract(set);
