@@ -16,21 +16,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class Lore {
 
-    private final AzPlugin plugin;
-
     public Lore(AzPlugin plugin) {
-        this.plugin = plugin;
-    }
-
-    public void register() {
         EventBus.INSTANCE.register(plugin, ItemEvent.class, 0, e -> {
-            uniqueRegister(e);
-            manaRegister(e);
-            weaponRegister(e);
+            unique(e);
+            mana(e);
+            weapon(e);
         });
     }
 
-    private void weaponRegister(@NotNull ItemEvent e) {
+    private void weapon(@NotNull ItemEvent e) {
         String mmid = MythicBukkit.inst().getItemManager().getMythicTypeFromItem(e.getBukkitItem());
         MythicItem mi = (mmid == null) ? null : MythicBukkit.inst().getItemManager().getItem(mmid).orElse(null);
         String group = (mi == null) ? null : mi.getGroup();
@@ -39,7 +33,7 @@ public class Lore {
         e.addLore(Component.text("§fカテゴリー: §7" + group));
     }
 
-    private void uniqueRegister(@NotNull ItemEvent e) {
+    private void unique(@NotNull ItemEvent e) {
         ItemStack item = e.getBukkitItem();
         Player p = e.getPlayer();
         Skill.getSkills(item).forEach(s -> {
@@ -51,7 +45,7 @@ public class Lore {
         });
     }
 
-    private void manaRegister(@NotNull ItemEvent e) {
+    private void mana(@NotNull ItemEvent e) {
         String s1 = Utils.getItemDataContainerString(e.getBukkitItem(), Mana.MAX_MANA, PersistentDataType.STRING);
         double mana = (s1 == null) ? 0 : Double.parseDouble(s1);
 

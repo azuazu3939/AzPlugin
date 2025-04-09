@@ -40,7 +40,7 @@ public final class AzPlugin extends JavaPlugin {
         MythicListener.reloadMythic(20);
         onlinePlayer();
 
-        new Lore(this).register();
+        new Lore(this);
         try {
             DBCon.init();
             DBCon.loadBreak();
