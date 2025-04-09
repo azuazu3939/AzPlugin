@@ -56,7 +56,9 @@ public final class Azurite {
             PacketHandler.inject(player);
         });
 
-        MythicListener.reloadMythic(20);
+        if (MythicListener.isMythic()) {
+            MythicListener.reloadMythic(20);
+        }
     }
 
     private void weapon(@NotNull ItemEvent e) {

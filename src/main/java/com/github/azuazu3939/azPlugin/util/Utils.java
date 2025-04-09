@@ -111,18 +111,19 @@ public class Utils {
 
     public static void createWorld(String name, String gen, Difficulty dif, WorldType type, World.Environment environment, String seed, boolean generate) {
         MultiverseCore core = JavaPlugin.getPlugin(MultiverseCore.class);
-        if (core.getMVWorldManager()
-                .addWorld(name, environment, seed, type, generate, gen)) {
+        if (!core.getMVWorldManager().addWorld(name, environment, seed, type, generate, gen)) return;
 
-           AzPlugin.getInstance().runLater(()-> {
-                World w = core.getMVWorldManager().getMVWorld(name).getCBWorld();
-                if (w == null) return;
-                MVWorldListener.configureWorldSettings(w, dif);
+        AzPlugin.getInstance().runLater(() -> applySettings(core, name, dif), 20);
+    }
 
-                if (MythicListener.isMythic()) {
-                    MythicListener.reloadMythic(100);
-                }
-            }, 20);
+    private static void applySettings(@NotNull MultiverseCore core, String name, Difficulty dif) {
+        World w = core.getMVWorldManager().getMVWorld(name).getCBWorld();
+        if (w == null) return;
+        MVWorldListener.configureWorldSettings(w, dif);
+
+        if (MythicListener.isMythic()) {
+            MythicListener.reloadMythic(100);
         }
+
     }
 }
