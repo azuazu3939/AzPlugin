@@ -1,8 +1,14 @@
 package com.github.azuazu3939.azPlugin.util;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.github.azuazu3939.azPlugin.listener.MVWorldListener;
+import com.github.azuazu3939.azPlugin.listener.MythicListener;
 import com.google.common.collect.Multimap;
+import com.onarandombox.MultiverseCore.MultiverseCore;
+import org.bukkit.Difficulty;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.WorldType;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
@@ -11,6 +17,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +30,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Utils {
 
     public static void dropItem(@NotNull Player player, @NotNull ItemStack item) {
-        AzPlugin.getInstance().run(()-> {
-            player.getInventory().addItem(item).forEach((n, i) ->
-                    player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item));
-        });
+        AzPlugin.getInstance().run(()->
+                player.getInventory().addItem(item).forEach((n, i) ->
+                player.getLocation().getWorld().dropItemNaturally(player.getLocation(), item)));
     }
 
     public static boolean isCoolTime(Class<?> clazz, UUID uuid, @NotNull Multimap<Class<?>, UUID> multimap) {
@@ -101,5 +107,22 @@ public class Utils {
         PersistentDataContainer container = p.getPersistentDataContainer();
         String s = container.get(key, type);
         return s == null ? defaultValue : Double.parseDouble(s);
+    }
+
+    public static void createWorld(String name, String gen, Difficulty dif, WorldType type, World.Environment environment, String seed, boolean generate) {
+        MultiverseCore core = JavaPlugin.getPlugin(MultiverseCore.class);
+        if (core.getMVWorldManager()
+                .addWorld(name, environment, seed, type, generate, gen)) {
+
+           AzPlugin.getInstance().runLater(()-> {
+                World w = core.getMVWorldManager().getMVWorld(name).getCBWorld();
+                if (w == null) return;
+                MVWorldListener.configureWorldSettings(w, dif);
+
+                if (MythicListener.isMythic()) {
+                    MythicListener.reloadMythic(100);
+                }
+            }, 20);
+        }
     }
 }

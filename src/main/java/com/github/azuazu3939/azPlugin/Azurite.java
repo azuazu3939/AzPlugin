@@ -1,27 +1,62 @@
 package com.github.azuazu3939.azPlugin;
 
+import com.github.azuazu3939.azPlugin.database.*;
+import com.github.azuazu3939.azPlugin.listener.MythicListener;
 import com.github.azuazu3939.azPlugin.mana.Mana;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
+import com.github.azuazu3939.azPlugin.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.unique.Skill;
+import com.github.azuazu3939.azPlugin.unique.armor.Defence;
+import com.github.azuazu3939.azPlugin.unique.armor.GroundReactionForce;
+import com.github.azuazu3939.azPlugin.unique.armor.Offence;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
 import net.azisaba.loreeditor.api.event.EventBus;
 import net.azisaba.loreeditor.api.event.ItemEvent;
 import net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-public class Lore {
+import java.sql.SQLException;
 
-    public Lore(AzPlugin plugin) {
+public final class Azurite {
+
+    public Azurite(AzPlugin plugin) {
         EventBus.INSTANCE.register(plugin, ItemEvent.class, 0, e -> {
             unique(e);
             mana(e);
             weapon(e);
         });
+
+        try {
+            DBCon.init();
+            DBCon.loadBreak();
+            DBCon.loadInteract();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        plugin.runAsyncTimer(()-> {
+            DBBlockInteract.clear();
+            DBBlockBreak.clear();
+            DBBlockInventory.clear();
+            DBBlockPlace.clear();
+        }, 6000L, 6000L);
+
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            new ManaRegen(player).start();
+            GroundReactionForce.System.addMember(player);
+
+            new Defence.System(player).apply();
+            new Offence.System(player).apply();
+            PacketHandler.inject(player);
+        });
+
+        MythicListener.reloadMythic(20);
     }
 
     private void weapon(@NotNull ItemEvent e) {
@@ -63,4 +98,5 @@ public class Lore {
             e.addLore(Component.text("§dマナ回復 +" + manaRegen + "§f/§d1s"));
         }
     }
+
 }

@@ -1,6 +1,6 @@
 package com.github.azuazu3939.azPlugin.commands;
 
-import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.github.azuazu3939.azPlugin.util.Utils;
 import org.bukkit.Difficulty;
 import org.bukkit.World;
 import org.bukkit.WorldType;
@@ -15,12 +15,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class WorldCreateCommand implements TabExecutor {
-
-    private final AzPlugin plugin;
-
-    public WorldCreateCommand(AzPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -66,7 +60,7 @@ public class WorldCreateCommand implements TabExecutor {
             return failed(sender, "オプションを正しく入力してください。");
         }
 
-        plugin.createWorld(name, generator, difficulty, type, we, seed, allowStractures);
+        Utils.createWorld(name, generator, difficulty, type, we, seed, allowStractures);
         return true;
     }
 

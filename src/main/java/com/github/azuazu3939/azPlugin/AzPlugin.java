@@ -4,21 +4,12 @@ import com.github.azuazu3939.azPlugin.commands.*;
 import com.github.azuazu3939.azPlugin.database.*;
 import com.github.azuazu3939.azPlugin.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.listener.*;
-import com.github.azuazu3939.azPlugin.mana.ManaRegen;
-import com.github.azuazu3939.azPlugin.unique.armor.GroundReactionForce;
-import com.github.azuazu3939.azPlugin.unique.armor.Defence;
-import com.github.azuazu3939.azPlugin.unique.armor.Offence;
-import com.onarandombox.MultiverseCore.MultiverseCore;
 import org.bukkit.Bukkit;
-import org.bukkit.Difficulty;
-import org.bukkit.World;
-import org.bukkit.WorldType;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 public final class AzPlugin extends JavaPlugin {
@@ -36,25 +27,7 @@ public final class AzPlugin extends JavaPlugin {
 
         registerListeners();
         registerCommands();
-
-        MythicListener.reloadMythic(20);
-        onlinePlayer();
-
-        new Lore(this);
-        try {
-            DBCon.init();
-            DBCon.loadBreak();
-            DBCon.loadInteract();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        runAsyncTimer(()-> {
-            DBBlockInteract.clear();
-            DBBlockBreak.clear();
-            DBBlockInventory.clear();
-            DBBlockPlace.clear();
-        }, 6000L, 6000L);
+        new Azurite(this);
     }
 
     @Override
@@ -85,7 +58,7 @@ public final class AzPlugin extends JavaPlugin {
     private void registerCommands() {
         Objects.requireNonNull(getCommand("worldregen")).setExecutor(new WorldRegenCommand(this));
         Objects.requireNonNull(getCommand("worldset")).setExecutor(new WorldSetCommand());
-        Objects.requireNonNull(getCommand("worldcreate")).setExecutor(new WorldCreateCommand(this));
+        Objects.requireNonNull(getCommand("worldcreate")).setExecutor(new WorldCreateCommand());
         Objects.requireNonNull(getCommand("worldteleport")).setExecutor(new WorldTeleportCommand());
         Objects.requireNonNull(getCommand("mode")).setExecutor(new ModeCommand());
         Objects.requireNonNull(getCommand("setmana")).setExecutor(new SetManaCommand());
@@ -99,36 +72,6 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("//createShop")).setExecutor(new CreateShopCommand());
         Objects.requireNonNull(getCommand("azcraft")).setExecutor(new AzCraftCommand());
     }
-
-    private void onlinePlayer() {
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            new ManaRegen(player).start();
-            GroundReactionForce.System.addMember(player);
-
-            new Defence.System(player).apply();
-            new Offence.System(player).apply();
-            PacketHandler.inject(player);
-        });
-    }
-
-    public void createWorld(String name, String gen, Difficulty dif, WorldType type, World.Environment environment, String seed, boolean generate) {
-        MultiverseCore core = JavaPlugin.getPlugin(MultiverseCore.class);
-        if (core.getMVWorldManager()
-                .addWorld(name, environment, seed, type, generate, gen)) {
-
-            runLater(()-> {
-                World w = core.getMVWorldManager().getMVWorld(name).getCBWorld();
-                if (w == null) return;
-                MVWorldListener.configureWorldSettings(w, dif);
-
-                if (MythicListener.isMythic()) {
-                    MythicListener.reloadMythic(100);
-                }
-            }, 20);
-        }
-    }
-
-
 
     @NotNull
     public BukkitTask run(Runnable runnable) {
