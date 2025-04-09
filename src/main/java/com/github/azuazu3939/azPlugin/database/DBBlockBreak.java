@@ -42,6 +42,7 @@ public class DBBlockBreak extends DBCon {
                 preparedStatement.setDouble(13, chance);
                 preparedStatement.setString(14, ct_material == null ? null : ct_material.toString());
                 preparedStatement.execute();
+                setBreak(set);
             });
         } catch (SQLException e) {
             throw new RuntimeException(e);

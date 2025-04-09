@@ -183,6 +183,14 @@ public class DBCon {
         }, 200L);
     }
 
+    protected static void setInteract(AbstractLocationSet set) {
+        LOCATION_SET.put(set, 2);
+    }
+
+    protected static void setBreak(AbstractLocationSet set) {
+        LOCATION_SET.put(set, 1);
+    }
+
     public record AbstractLocationSet(World world, int x, int y, int z) {
 
         @NotNull

@@ -55,7 +55,7 @@ public class SetShopCommand implements TabExecutor {
             Set<Location> locations = SetCommandUtil.getLocations(player, box, material);
             int i = 2;
             for (Location loc : locations) {
-                AzPlugin.getInstance().runAsync(()-> DBBlockInteract.updateBlockInteractSync(DBCon.AbstractLocationSet.create(loc), key));
+                AzPlugin.getInstance().runAsync(()-> DBBlockInteract.updateBlockInteractAsync(DBCon.AbstractLocationSet.create(loc), key));
                 i += 2;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);
