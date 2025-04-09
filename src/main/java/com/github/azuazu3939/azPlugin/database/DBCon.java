@@ -80,7 +80,7 @@ public class DBCon {
                 "`cursor` blob, \n" +
                 "PRIMARY KEY (`shop`)\n" +
                 ")", PreparedStatement::execute);
-        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + PLACE + "` (\n)" +
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + PLACE + "` (\n" +
                 "`name` varchar(64) NOT NULL, \n" +
                 "`x` int, \n" +
                 "`y` smallint, \n" +

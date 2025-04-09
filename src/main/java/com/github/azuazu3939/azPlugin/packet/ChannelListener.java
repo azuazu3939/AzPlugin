@@ -39,7 +39,6 @@ public class ChannelListener extends ChannelDuplexHandler {
                 PacketHandler.sendItemPacket(player, packet.getContainerId(), cc.getStateId(), 1);
             }
         }
-
         super.write(ctx, msg, promise);
     }
 
@@ -53,7 +52,6 @@ public class ChannelListener extends ChannelDuplexHandler {
 
                 InteractionHand h = packet.getHand();
                 if (h != null && h == InteractionHand.MAIN_HAND) {
-
                     BlockAction.databaseLocation(player, result.getBlockPos());
                 }
             }
