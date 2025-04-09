@@ -1,4 +1,4 @@
-package com.github.azuazu3939.azPlugin.lib.holder;
+package com.github.azuazu3939.azPlugin.gimmick.holder;
 
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;

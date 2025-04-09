@@ -1,6 +1,6 @@
 package com.github.azuazu3939.azPlugin.listener;
 
-import com.github.azuazu3939.azPlugin.lib.Calculation;
+import com.github.azuazu3939.azPlugin.util.Calculation;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.bukkit.events.MythicDamageEvent;
 import org.bukkit.event.EventHandler;

@@ -1,4 +1,4 @@
-package com.github.azuazu3939.azPlugin.lib.holder;
+package com.github.azuazu3939.azPlugin.gimmick.holder;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;

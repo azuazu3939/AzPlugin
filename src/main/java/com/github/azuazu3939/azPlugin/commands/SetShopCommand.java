@@ -3,7 +3,7 @@ package com.github.azuazu3939.azPlugin.commands;
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBBlockInteract;
 import com.github.azuazu3939.azPlugin.database.DBCon;
-import com.github.azuazu3939.azPlugin.database.DBInventory;
+import com.github.azuazu3939.azPlugin.database.DBBlockInventory;
 import com.github.azuazu3939.azPlugin.util.SetCommandUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -82,10 +82,10 @@ public class SetShopCommand implements TabExecutor {
         } else if (strings.length == 2) {
             String arg = strings[1];
             if (arg.isBlank() || arg.isEmpty()) {
-                return DBInventory.getKeys().stream().toList();
+                return DBBlockInventory.getKeys().stream().toList();
             } else {
                 List<String> list = new ArrayList<>();
-                for (String mat : DBInventory.getKeys()) {
+                for (String mat : DBBlockInventory.getKeys()) {
                     if (mat.toLowerCase().contains(arg.toLowerCase())) {
                         list.add(mat);
                     }

@@ -1,6 +1,5 @@
-package com.github.azuazu3939.azPlugin.lib;
+package com.github.azuazu3939.azPlugin;
 
-import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.mana.Mana;
 import com.github.azuazu3939.azPlugin.mana.ManaRegen;
 import com.github.azuazu3939.azPlugin.unique.Skill;

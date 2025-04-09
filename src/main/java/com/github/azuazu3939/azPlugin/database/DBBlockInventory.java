@@ -1,7 +1,7 @@
 package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.lib.packet.BlockInteractAction;
+import com.github.azuazu3939.azPlugin.gimmick.records.BlockInteractAction;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DBInventory extends DBCon {
+public class DBBlockInventory extends DBCon {
 
     private static final Map<String, BlockInteractAction> TEMP_INVENTORY = new ConcurrentHashMap<>();
 
@@ -25,20 +25,18 @@ public class DBInventory extends DBCon {
     public static void updateBlockInteractSync(String key, Inventory inv, ItemStack cursor) {
         try {
             runPrepareStatement("INSERT INTO `" + INVENTORY + "` " +
-                    "(`shop`, `slot`, `item`, `cursor`)" +
-                    " VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE " +
+                    "(`shop`, `item`, `cursor`)" +
+                    " VALUES (?,?,?) ON DUPLICATE KEY UPDATE " +
                     "`item`=?, `cursor` =?;", preparedStatement -> {
-                for (int i = 0; i < inv.getSize(); i++) {
-                    preparedStatement.setString(1, key);
-                    preparedStatement.setInt(2, i);
 
-                    ItemStack item = inv.getItem(i);
-                    preparedStatement.setBytes(3, (item == null || item.getType().isAir()) ? null : item.serializeAsBytes());
-                    preparedStatement.setBytes(4, (cursor == null || cursor.getType().isAir()) ? null : cursor.serializeAsBytes());
-                    preparedStatement.setBytes(5, (item == null || item.getType().isAir()) ? null : item.serializeAsBytes());
-                    preparedStatement.setBytes(6, (cursor == null || cursor.getType().isAir()) ? null : cursor.serializeAsBytes());
-                    preparedStatement.execute();
-                }
+                preparedStatement.setString(1, key);
+
+                byte[] bytes = ItemStack.serializeItemsAsBytes(inv.getContents());
+                preparedStatement.setBytes(2, bytes);
+                preparedStatement.setBytes(3, (cursor == null || cursor.getType().isAir()) ? null : cursor.serializeAsBytes());
+                preparedStatement.setBytes(4, bytes);
+                preparedStatement.setBytes(5, (cursor == null || cursor.getType().isAir()) ? null : cursor.serializeAsBytes());
+                preparedStatement.execute();
                 TEMP_INVENTORY.put(key, new BlockInteractAction(inv, cursor));
             });
         } catch (SQLException e) {
@@ -56,14 +54,21 @@ public class DBInventory extends DBCon {
                     runPrepareStatement("SELECT * FROM `" + INVENTORY + "` WHERE `shop` = ?;", preparedStatement -> {
                         preparedStatement.setString(1, key);
                         try (ResultSet rs = preparedStatement.executeQuery()) {
-                            while (rs.next()) {
+
+                            if (rs.next()) {
                                 byte[] itemBytes = rs.getBytes("item");
-                                ItemStack item = (itemBytes == null) ? null : ItemStack.deserializeBytes(itemBytes);
-                                inv.setItem(rs.getInt("slot"), item);
+                                ItemStack[] items = ItemStack.deserializeItemsFromBytes(itemBytes);
+
+                                int i = 0;
+                                for (ItemStack item : items) {
+                                    inv.setItem(i, item);
+                                    i++;
+                                }
+
+                                byte[] cursorBytes = rs.getBytes("cursor");
+                                ItemStack cursor = (cursorBytes == null) ? null : ItemStack.deserializeBytes(cursorBytes);
+                                TEMP_INVENTORY.put(key, new BlockInteractAction(inv, cursor));
                             }
-                            byte[] cursorBytes = rs.getBytes("cursor");
-                            ItemStack cursorItem = (cursorBytes == null) ? null : ItemStack.deserializeBytes(cursorBytes);
-                            TEMP_INVENTORY.put(key, new BlockInteractAction(inv, cursorItem));
                         }
 
                     });

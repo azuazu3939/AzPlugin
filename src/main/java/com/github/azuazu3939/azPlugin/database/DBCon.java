@@ -23,6 +23,7 @@ public class DBCon {
     protected static String BREAK;
     protected static String INTERACT;
     protected static String INVENTORY;
+    protected static String PLACE;
 
     protected static final Map<AbstractLocationSet, Integer> LOCATION_SET = new ConcurrentHashMap<>();
 
@@ -31,6 +32,7 @@ public class DBCon {
         BREAK = AzPlugin.getInstance().getConfig().getString("Database.break");
         INTERACT = AzPlugin.getInstance().getConfig().getString("Database.interact");
         INVENTORY = AzPlugin.getInstance().getConfig().getString("Database.inventory");
+        PLACE = AzPlugin.getInstance().getConfig().getString("Database.place");
 
         new org.mariadb.jdbc.Driver();
         HikariConfig config = new HikariConfig();
@@ -53,7 +55,7 @@ public class DBCon {
 
     public static void createTables() throws SQLException {
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + BREAK + "` (\n" +
-                "`name` varchar(36) NOT NULL, \n" +
+                "`name` varchar(64) NOT NULL, \n" +
                 "`x` int, \n" +
                 "`y` smallint, \n" +
                 "`z` int, \n" +
@@ -61,23 +63,32 @@ public class DBCon {
                 "`mmid` varchar(128) NOT NULL, \n" +
                 "`amount` tinyint,  \n" +
                 "`chance` double, \n" +
-                "`ct_material` varchar(32), \n" +
+                "`ct_material` varchar(64), \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
                 ")", PreparedStatement::execute);
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INTERACT + "` (\n" +
-                "`name` varchar(36) NOT NULL , \n" +
+                "`name` varchar(64) NOT NULL , \n" +
                 "`x` int, \n" +
                 "`y` smallint, \n" +
                 "`z` int, \n" +
-                "`shop` varchar(36) NOT NULL, \n" +
+                "`shop` varchar(64) NOT NULL, \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
                 ")", PreparedStatement::execute);
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INVENTORY + "` (\n" +
-                "`shop` varchar(36) NOT NULL , \n" +
-                "`slot` tinyint(54), \n" +
-                "`item` blob, \n" +
+                "`shop` varchar(64) NOT NULL , \n" +
+                "`item` mediumblob, \n" +
                 "`cursor` blob, \n" +
-                "PRIMARY KEY (`shop`, `slot`)\n" +
+                "PRIMARY KEY (`shop`)\n" +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + PLACE + "` (\n)" +
+                "`name` varchar(64) NOT NULL, \n" +
+                "`x` int, \n" +
+                "`y` smallint, \n" +
+                "`z` int, \n" +
+                "`tick` int DEFAULT 200, \n" +
+                "`material` varchar(64), \n" +
+                "`trigger` varchar(64), \n " +
+                "PRIMARY KEY (`name`, `x`, `y`, `z`)\n " +
                 ")", PreparedStatement::execute);
 
     }
@@ -152,6 +163,7 @@ public class DBCon {
                                     rs.getInt("z")),
                                     1);
                         }
+                        AzPlugin.getInstance().getLogger().info("Success!! loaded break system");
                     }
                 });
             } catch (SQLException e) {
@@ -174,7 +186,8 @@ public class DBCon {
                                     rs.getInt("y"),
                                     rs.getInt("z")),
                                     2);
-                        }
+                        }AzPlugin.getInstance().getLogger().info("Success!! loaded interact system");
+
                     }
                 });
             } catch (SQLException e) {
@@ -189,6 +202,10 @@ public class DBCon {
 
     protected static void setBreak(AbstractLocationSet set) {
         LOCATION_SET.put(set, 1);
+    }
+
+    protected static void setPlace(AbstractLocationSet set) {
+        LOCATION_SET.put(set, 3);
     }
 
     public record AbstractLocationSet(World world, int x, int y, int z) {

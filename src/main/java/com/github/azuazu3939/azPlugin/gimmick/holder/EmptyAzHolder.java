@@ -1,6 +1,5 @@
-package com.github.azuazu3939.azPlugin.lib.holder;
+package com.github.azuazu3939.azPlugin.gimmick.holder;
 
-import com.github.azuazu3939.azPlugin.lib.packet.BlockInteractAction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;

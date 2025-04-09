@@ -1,4 +1,4 @@
-package com.github.azuazu3939.azPlugin.lib;
+package com.github.azuazu3939.azPlugin.util;
 
 public class Calculation {
 

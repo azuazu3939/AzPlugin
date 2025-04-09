@@ -2,7 +2,7 @@ package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.commands.ModeCommand;
-import com.github.azuazu3939.azPlugin.lib.packet.PacketHandler;
+import com.github.azuazu3939.azPlugin.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

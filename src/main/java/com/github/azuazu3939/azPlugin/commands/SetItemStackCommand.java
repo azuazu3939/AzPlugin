@@ -87,7 +87,7 @@ public class SetItemStackCommand implements TabExecutor {
 
             int i = 2;
             for (Location loc : locations) {
-                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationSync(DBCon.AbstractLocationSet.create(loc), finalTick, mmid, finalAmount, finalChance, finalCt_material), i);
+                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationAsync(DBCon.AbstractLocationSet.create(loc), finalTick, mmid, finalAmount, finalChance, finalCt_material), i);
                 i += 2;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);

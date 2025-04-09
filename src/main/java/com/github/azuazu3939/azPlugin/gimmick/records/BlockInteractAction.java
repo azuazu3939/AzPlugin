@@ -1,4 +1,4 @@
-package com.github.azuazu3939.azPlugin.lib.packet;
+package com.github.azuazu3939.azPlugin.gimmick.records;
 
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

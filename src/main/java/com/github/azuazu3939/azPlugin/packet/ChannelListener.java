@@ -1,20 +1,20 @@
-package com.github.azuazu3939.azPlugin.lib.packet;
+package com.github.azuazu3939.azPlugin.packet;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.lib.ShowCaseBuilder;
-import com.github.azuazu3939.azPlugin.listener.PacketBlockListener;
+import com.github.azuazu3939.azPlugin.gimmick.actions.BlockAction;
+import com.github.azuazu3939.azPlugin.gimmick.ShowCaseBuilder;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,7 +34,7 @@ public class ChannelListener extends ChannelDuplexHandler {
         // server -> client
         if (msg instanceof ClientboundOpenScreenPacket packet) {
             ChestMenu cc = getCraftContainer(packet.getContainerId());
-            Inventory inv = cc.getBukkitView().getTopInventory();
+            Inventory inv = player.getOpenInventory().getTopInventory();
             if (ShowCaseBuilder.checkHolder(inv)) {
                 PacketHandler.sendItemPacket(player, packet.getContainerId(), cc.getStateId(), 1);
             }
@@ -48,22 +48,28 @@ public class ChannelListener extends ChannelDuplexHandler {
         // client -> server
         if (msg instanceof ServerboundUseItemOnPacket packet) {
             BlockHitResult result = packet.getHitResult();
-            if (result != null && PacketBlockListener.isAffected(player.getUniqueId(), result.getBlockPos())) return;
+            if (result != null) {
+                if (BlockAction.isAffected(player.getUniqueId(), result.getBlockPos())) return;
+
+                InteractionHand h = packet.getHand();
+                if (h != null && h == InteractionHand.MAIN_HAND) {
+
+                    BlockAction.databaseLocation(player, result.getBlockPos());
+                }
+            }
 
         } else if (msg instanceof ServerboundContainerClickPacket packet) {
 
-            InventoryView view = getCraftContainer(packet.getContainerId()).getBukkitView();
-            Inventory top = view.getTopInventory();
+            ChestMenu cc = getCraftContainer(packet.getContainerId());
+            Inventory inv = player.getOpenInventory().getTopInventory();
 
-            if (ShowCaseBuilder.checkHolder(top)) {
+            if (ShowCaseBuilder.checkHolder(inv)) {
                 for (int i : packet.getChangedSlots().keySet()) {
 
                     AzPlugin.getInstance().runAsyncLater(() -> {
                         PacketHandler.sendSetSlot(player, -1, packet.getStateId(), -1, ShowCaseBuilder.getEmpty());
 
-                        ItemStack item = (i < top.getSize()) ? ShowCaseBuilder.get(player.getUniqueId()).items().get(i) : ItemStack.fromBukkitCopy(view.getItem(i));
-
-                        if (PacketHandler.isNoAction(player.getUniqueId())) return;
+                        ItemStack item = (i < inv.getSize()) ? ShowCaseBuilder.get(player.getUniqueId()).items().get(i) : ItemStack.fromBukkitCopy(cc.getBukkitView().getItem(i));
                         PacketHandler.sendSetSlot(player, packet.getContainerId(), packet.getStateId(), i, item);
                     }, 1);
                 }
@@ -74,6 +80,7 @@ public class ChannelListener extends ChannelDuplexHandler {
             if (ShowCaseBuilder.checkHolder(top)) {
                 ShowCaseBuilder.remove(player.getUniqueId());
             }
+
         }
         super.channelRead(ctx, msg);
     }

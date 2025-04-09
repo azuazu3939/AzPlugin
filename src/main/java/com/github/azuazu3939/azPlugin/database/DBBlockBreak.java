@@ -1,7 +1,7 @@
 package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.lib.packet.BlockBreakAction;
+import com.github.azuazu3939.azPlugin.gimmick.records.BlockBreakAction;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 

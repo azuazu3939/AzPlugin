@@ -1,6 +1,7 @@
-package com.github.azuazu3939.azPlugin.lib;
+package com.github.azuazu3939.azPlugin.gimmick;
 
-import com.github.azuazu3939.azPlugin.lib.holder.AbstractAzHolder;
+import com.github.azuazu3939.azPlugin.gimmick.holder.AbstractAzHolder;
+import com.github.azuazu3939.azPlugin.gimmick.holder.BaseAzHolder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.entity.Player;
@@ -60,6 +61,6 @@ public class ShowCaseBuilder {
     public static ItemStack getEmpty() {return ItemStack.fromBukkitCopy(null);}
 
     public static boolean checkHolder(@NotNull Inventory inv) {
-        return inv.getHolder() instanceof AbstractAzHolder;
+        return inv.getHolder() instanceof BaseAzHolder;
     }
 }

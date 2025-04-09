@@ -1,6 +1,6 @@
 package com.github.azuazu3939.azPlugin.commands;
 
-import com.github.azuazu3939.azPlugin.lib.holder.RegisterAzHolder;
+import com.github.azuazu3939.azPlugin.gimmick.holder.RegisterAzHolder;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

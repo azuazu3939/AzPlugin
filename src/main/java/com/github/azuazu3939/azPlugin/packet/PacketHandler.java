@@ -1,7 +1,7 @@
-package com.github.azuazu3939.azPlugin.lib.packet;
+package com.github.azuazu3939.azPlugin.packet;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.lib.ShowCaseBuilder;
+import com.github.azuazu3939.azPlugin.gimmick.ShowCaseBuilder;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitBlock;
@@ -27,12 +27,10 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PacketHandler {
 
     private static final String NAME = "az";
-    private static final Set<UUID> NoAction = ConcurrentHashMap.newKeySet();
 
     public static void sendPacket(Player p, net.minecraft.network.protocol.Packet<?> packet) {
         ((CraftPlayer) p).getHandle().connection.sendPacket(packet);
@@ -111,7 +109,6 @@ public class PacketHandler {
     }
 
     public static void sendItemPacket(@NotNull Player player, int container, int state, long scale) {
-        NoAction.add(player.getUniqueId());
         NonNullList<ItemStack> list = ShowCaseBuilder.get(player.getUniqueId()).items();
         long delay = list.size() * scale;
         if (!list.isEmpty()) {
@@ -138,10 +135,7 @@ public class PacketHandler {
         ClientboundContainerSetSlotPacket cursor = new ClientboundContainerSetSlotPacket(-1, state, -1, ShowCaseBuilder.getEmpty());
         AzPlugin.getInstance().runAsyncLater(()->
                 PacketHandler.sendPacket(player, cursor), finish);
-        AzPlugin.getInstance().runAsyncLater(()-> {
-            player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1F,  0.5F);
-            NoAction.remove(player.getUniqueId());
-        }, finish + 20);
+        AzPlugin.getInstance().runAsyncLater(()-> player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1F,  0.5F), finish + 20);
     }
 
     public static void sendSetSlot(Player player, int containerId, int state, int slot, ItemStack item) {
@@ -151,9 +145,5 @@ public class PacketHandler {
                 slot,
                 item);
         PacketHandler.sendPacket(player, set);
-    }
-
-    public static boolean isNoAction(UUID uuid) {
-        return NoAction.contains(uuid);
     }
 }

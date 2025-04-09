@@ -16,3 +16,4 @@ Database:
   break: break
   interact: interact
   inventory: inventory
+  place: place

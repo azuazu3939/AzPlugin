@@ -1,8 +1,8 @@
 package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.lib.DamageColor;
-import com.github.azuazu3939.azPlugin.lib.packet.PacketHandler;
+import com.github.azuazu3939.azPlugin.util.DamageColor;
+import com.github.azuazu3939.azPlugin.packet.PacketHandler;
 import io.lumine.mythic.api.adapters.AbstractEntity;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.events.MythicDamageEvent;
