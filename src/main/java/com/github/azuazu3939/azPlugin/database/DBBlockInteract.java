@@ -1,12 +1,10 @@
 package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,11 +64,5 @@ public class DBBlockInteract extends DBCon {
 
     public static void clear() {
         INTERACT_ACTION.clear();
-    }
-
-    @NotNull
-    @Contract(pure = true)
-    public static Collection<String> getKeys() {
-        return INTERACT_ACTION.values();
     }
 }

@@ -3,6 +3,7 @@ package com.github.azuazu3939.azPlugin.commands;
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBBlockInteract;
 import com.github.azuazu3939.azPlugin.database.DBCon;
+import com.github.azuazu3939.azPlugin.database.DBInventory;
 import com.github.azuazu3939.azPlugin.util.SetCommandUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class SetShopCommand implements TabExecutor {
 
@@ -42,7 +44,8 @@ public class SetShopCommand implements TabExecutor {
         }
 
         String key = strings[1];
-        if (!key.matches("[a-zA-Z0-9_]")) {
+        Pattern p = Pattern.compile("[a-zA-Z0-9_]");
+        if (!p.matcher(key).find()) {
             player.sendMessage(Component.text("shopIdはazAZ09_のみで構成される必要があります。"));
             return true;
         }
@@ -79,10 +82,10 @@ public class SetShopCommand implements TabExecutor {
         } else if (strings.length == 2) {
             String arg = strings[1];
             if (arg.isBlank() || arg.isEmpty()) {
-                return DBBlockInteract.getKeys().stream().toList();
+                return DBInventory.getKeys().stream().toList();
             } else {
                 List<String> list = new ArrayList<>();
-                for (String mat : DBBlockInteract.getKeys()) {
+                for (String mat : DBInventory.getKeys()) {
                     if (mat.toLowerCase().contains(arg.toLowerCase())) {
                         list.add(mat);
                     }

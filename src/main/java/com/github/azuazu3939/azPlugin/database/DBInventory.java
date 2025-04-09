@@ -4,10 +4,12 @@ import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.lib.packet.BlockInteractAction;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +24,7 @@ public class DBInventory extends DBCon {
 
     public static void updateBlockInteractSync(String key, Inventory inv, ItemStack cursor) {
         try {
-            runPrepareStatement("INSERT INTO `" + INTERACT + "` " +
+            runPrepareStatement("INSERT INTO `" + INVENTORY + "` " +
                     "(`shop`, `slot`, `item`, `cursor`)" +
                     " VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE " +
                     "`item`=?, `cursor` =?;", preparedStatement -> {
@@ -31,10 +33,10 @@ public class DBInventory extends DBCon {
                     preparedStatement.setInt(2, i);
 
                     ItemStack item = inv.getItem(i);
-                    preparedStatement.setBytes(3, (item == null) ? null : item.serializeAsBytes());
-                    preparedStatement.setBytes(4, (cursor == null) ? null : cursor.serializeAsBytes());
-                    preparedStatement.setBytes(5, (item == null) ? null : item.serializeAsBytes());
-                    preparedStatement.setBytes(6, (cursor == null) ? null : cursor.serializeAsBytes());
+                    preparedStatement.setBytes(3, (item == null || item.getType().isAir()) ? null : item.serializeAsBytes());
+                    preparedStatement.setBytes(4, (cursor == null || cursor.getType().isAir()) ? null : cursor.serializeAsBytes());
+                    preparedStatement.setBytes(5, (item == null || item.getType().isAir()) ? null : item.serializeAsBytes());
+                    preparedStatement.setBytes(6, (cursor == null || cursor.getType().isAir()) ? null : cursor.serializeAsBytes());
                     preparedStatement.execute();
                 }
                 TEMP_INVENTORY.put(key, new BlockInteractAction(inv, cursor));
@@ -75,5 +77,11 @@ public class DBInventory extends DBCon {
 
     public static void clear() {
         TEMP_INVENTORY.clear();
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    public static Collection<String> getKeys() {
+        return TEMP_INVENTORY.keySet();
     }
 }

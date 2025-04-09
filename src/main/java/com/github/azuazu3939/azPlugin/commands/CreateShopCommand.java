@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class CreateShopCommand implements TabExecutor {
 
@@ -30,7 +31,8 @@ public class CreateShopCommand implements TabExecutor {
         if (arg0.equalsIgnoreCase("create")) {
 
             String key = strings[1];
-            if (!key.matches("[a-zA-Z0-9_]")) {
+            Pattern p = Pattern.compile("[a-zA-Z0-9_]");
+            if (!p.matcher(key).find()) {
                 player.sendMessage(Component.text("shopIdはazAZ09_のみで構成される必要があります。"));
                 return true;
             }
@@ -46,7 +48,8 @@ public class CreateShopCommand implements TabExecutor {
         } else if (arg0.equalsIgnoreCase("open")) {
 
             String key = strings[1];
-            if (!key.matches("[a-zA-Z0-9_]")) {
+            Pattern p = Pattern.compile("[a-zA-Z0-9_]");
+            if (!p.matcher(key).find()) {
                 player.sendMessage(Component.text("shopIdはazAZ09_のみで構成される必要があります。"));
                 return true;
             }

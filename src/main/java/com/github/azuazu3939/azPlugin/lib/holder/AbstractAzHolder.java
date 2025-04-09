@@ -10,7 +10,7 @@ public abstract class AbstractAzHolder implements AzHolder {
     private final Inventory inv;
 
     public AbstractAzHolder(int row, String name) {
-        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, row)), Component.text(name));
+        this.inv = Bukkit.createInventory(this, Math.min(6, Math.max(1, row)) * 9, Component.text(name));
     }
 
     @Override
