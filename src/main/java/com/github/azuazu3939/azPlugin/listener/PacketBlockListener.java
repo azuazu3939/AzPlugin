@@ -3,8 +3,12 @@ package com.github.azuazu3939.azPlugin.listener;
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBBlockBreak;
 import com.github.azuazu3939.azPlugin.database.DBBlockInteract;
+import com.github.azuazu3939.azPlugin.database.DBCon;
+import com.github.azuazu3939.azPlugin.lib.ShowCaseBuilder;
+import com.github.azuazu3939.azPlugin.lib.holder.BaseAzHolder;
 import com.github.azuazu3939.azPlugin.lib.holder.EmptyAzHolder;
 import com.github.azuazu3939.azPlugin.lib.packet.BlockBreakAction;
+import com.github.azuazu3939.azPlugin.lib.packet.BlockInteractAction;
 import com.github.azuazu3939.azPlugin.lib.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.ArrayListMultimap;
@@ -46,22 +50,39 @@ public class PacketBlockListener implements Listener {
         Player player = event.getPlayer();
         if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return;
         Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 2);
-        DBBlockBreak.getLocationAction(block);
-        DBBlockInteract.getLocationAction(block, new EmptyAzHolder(6, "テスト").getInventory());
+
+        DBCon.AbstractLocationSet set = DBCon.getLocationSet(block.getLocation());
+        if (set == null) return;
+        int i = DBCon.locationToInt(set);
+        if (i == 1) {
+            breakProcess(player, set);
+        } else if (i == 2) {
+            interactProcess(player, set);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(@NotNull BlockBreakEvent event) {
         Block block = event.getBlock();
         if (!block.getWorld().getName().toLowerCase().contains("open")) return;
-        process(event.getPlayer(), block);
+        DBCon.AbstractLocationSet set = DBCon.getLocationSet(block.getLocation());
+        if (set == null) return;
+        int i = DBCon.locationToInt(set);
+        if (i == 1) {
+            breakProcess(event.getPlayer(), set);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(@NotNull BlockPlaceEvent event) {
         Block block = event.getBlock();
         if (!block.getWorld().getName().toLowerCase().contains("open")) return;
-        process(event.getPlayer(), block);
+        DBCon.AbstractLocationSet set = DBCon.getLocationSet(block.getLocation());
+        if (set == null) return;
+        int i = DBCon.locationToInt(set);
+        if (i == 1) {
+            breakProcess(event.getPlayer(), set);
+        }
     }
 
     @EventHandler
@@ -74,15 +95,15 @@ public class PacketBlockListener implements Listener {
         clear(event.getPlayer());
     }
 
-    private void process(@NotNull Player player, @NotNull Block block) {
-        Optional<BlockBreakAction> op = DBBlockBreak.getLocationAction(block);
+    private void breakProcess(@NotNull Player player, @NotNull DBCon.AbstractLocationSet set) {
+        Optional<BlockBreakAction> op = DBBlockBreak.getLocationAction(set);
         if (op.isPresent()) {
             BlockBreakAction action = op.get();
             long tick;
             String mmid = action.mmid();
             Random ran = new Random();
 
-            BlockPos ps = new BlockPos(block.getX(), block.getY(), block.getZ());
+            BlockPos ps = new BlockPos(set.x(), set.y(), set.z());
             if (isAffected(player.getUniqueId(), ps)) {
                 cooldown(player, ps, action);
                 return;
@@ -95,6 +116,14 @@ public class PacketBlockListener implements Listener {
             tick = action.tick();
             player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1 ,1);
             mined(player, ps, action, tick);
+        }
+    }
+
+    private void interactProcess(@NotNull Player player, @NotNull DBCon.AbstractLocationSet set) {
+        Optional<BlockInteractAction> op = DBBlockInteract.getLocationAction(set, new EmptyAzHolder(6, "テスト").getInventory());
+        if (op.isPresent()) {
+            BlockInteractAction action = op.get();
+            new ShowCaseBuilder(player, new BaseAzHolder(6, "テスト", action.inv(), action.cursor()));
         }
     }
 

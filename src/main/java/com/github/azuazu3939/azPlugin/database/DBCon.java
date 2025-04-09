@@ -3,12 +3,19 @@ package com.github.azuazu3939.azPlugin.database;
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DBCon {
 
@@ -16,6 +23,8 @@ public class DBCon {
 
     protected static String BREAK;
     protected static String INTERACT;
+
+    protected static final Map<AbstractLocationSet, Integer> LOCATION_SET = new ConcurrentHashMap<>();
 
     public static void init() throws SQLException {
         if (!AzPlugin.getInstance().getConfig().getBoolean("Database.use")) return;
@@ -59,11 +68,10 @@ public class DBCon {
                 "`x` int, \n" +
                 "`y` smallint, \n" +
                 "`z` int, \n" +
-                "`shop_key` varchar(36) NOT NULL, \n" +
                 "`slot` tinyint, \n" +
                 "`item` blob, \n" +
                 "`cursor` blob, \n" +
-                "PRIMARY KEY (`name`, `x`, `y`, `z`, `shop_key`, `slot`)\n" +
+                "PRIMARY KEY (`name`, `x`, `y`, `z`, `slot`)\n" +
                 ")", PreparedStatement::execute);
 
     }
@@ -121,5 +129,70 @@ public class DBCon {
                 action.accept(statement);
             }
         });
+    }
+
+    public static void loadBreak() {
+        AzPlugin.getInstance().runAsyncLater(() -> {
+            try {
+                runPrepareStatement("SELECT `name`, `x`, `y`, `z` FROM `" + BREAK + "`;", (preparedStatement) -> {
+                    try (ResultSet rs = preparedStatement.executeQuery()) {
+                        while (rs.next()) {
+                            World world = Bukkit.getWorld(rs.getString("name"));
+                            if (world == null) continue;
+                            LOCATION_SET.put(new AbstractLocationSet(
+                                    world,
+                                    rs.getInt("x"),
+                                    rs.getInt("y"),
+                                    rs.getInt("z")),
+                                    1);
+                        }
+                    }
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, 100L);
+    }
+
+    public static void loadInteract() {
+        AzPlugin.getInstance().runAsyncLater(() -> {
+            try {
+                runPrepareStatement("SELECT `name`, `x`, `y`, `z` FROM `" + INTERACT + "`;", (preparedStatement) -> {
+                    try (ResultSet rs = preparedStatement.executeQuery()) {
+                        while (rs.next()) {
+                            World world = Bukkit.getWorld(rs.getString("name"));
+                            if (world == null) continue;
+                            LOCATION_SET.put(new AbstractLocationSet(
+                                    world,
+                                    rs.getInt("x"),
+                                    rs.getInt("y"),
+                                    rs.getInt("z")),
+                                    2);
+                        }
+                    }
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, 200L);
+    }
+
+    public record AbstractLocationSet(World world, int x, int y, int z) {}
+
+    @Nullable
+    public static AbstractLocationSet getLocationSet(Location location) {
+         if (LOCATION_SET.keySet().stream().anyMatch(l -> {
+            if (!l.world.getName().equals(location.getWorld().getName())) return false;
+            return l.x == location.getBlockX() && l.y == location.getBlockY() && l.z == location.getBlockZ();
+
+        })) {
+             return new AbstractLocationSet(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+         }
+        return null;
+    }
+
+    public static int locationToInt(AbstractLocationSet set) {
+        if (LOCATION_SET.containsKey(set)) return LOCATION_SET.get(set);
+        return 0;
     }
 }

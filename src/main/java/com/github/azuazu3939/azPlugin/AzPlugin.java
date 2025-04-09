@@ -44,6 +44,8 @@ public final class AzPlugin extends JavaPlugin {
         new Lore(this).register();
         try {
             DBCon.init();
+            DBCon.loadBreak();
+            DBCon.loadInteract();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

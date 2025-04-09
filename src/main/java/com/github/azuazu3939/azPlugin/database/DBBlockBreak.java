@@ -15,23 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DBBlockBreak extends DBCon {
 
-    private static final Map<Location, BlockBreakAction> BREAK_ACTION = new ConcurrentHashMap<>();
+    private static final Map<AbstractLocationSet, BlockBreakAction> BREAK_ACTION = new ConcurrentHashMap<>();
 
-    public static void updateLocationAsync(Location loc, int tick, String mmid, int amount, double chance, Material ct_material) {
-        AzPlugin.getInstance().runAsync(()-> updateLocationSync(loc, tick, mmid, amount, chance, ct_material));
+    public static void updateLocationAsync(AbstractLocationSet set, int tick, String mmid, int amount, double chance, Material ct_material) {
+        AzPlugin.getInstance().runAsync(()-> updateLocationSync(set, tick, mmid, amount, chance, ct_material));
     }
 
-    public static void updateLocationSync(Location loc, int tick, String mmid, int amount, double chance, Material ct_material) {
+    public static void updateLocationSync(AbstractLocationSet set, int tick, String mmid, int amount, double chance, Material ct_material) {
         try {
             runPrepareStatement("INSERT INTO `" + BREAK + "` " +
                     "(`name`, `x`, `y`, `z`, `tick`, `mmid`, `amount`, `chance`, `ct_material`)" +
                     " VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
                     "`tick` = ?, `mmid` = ?, `amount` = ?, `chance` =?, `ct_material` =?;", preparedStatement -> {
 
-                preparedStatement.setString(1, loc.getWorld().getName());
-                preparedStatement.setInt(2, loc.getBlockX());
-                preparedStatement.setInt(3, loc.getBlockY());
-                preparedStatement.setInt(4, loc.getBlockZ());
+                preparedStatement.setString(1, set.world().getName());
+                preparedStatement.setInt(2, set.x());
+                preparedStatement.setInt(3, set.y());
+                preparedStatement.setInt(4, set.z());
                 preparedStatement.setInt(5, tick);
                 preparedStatement.setString(6, mmid);
                 preparedStatement.setInt(7, amount);
@@ -48,30 +48,25 @@ public class DBBlockBreak extends DBCon {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        BREAK_ACTION.put(loc, new BlockBreakAction(tick, mmid, amount, chance, ct_material));
+        BREAK_ACTION.put(set, new BlockBreakAction(tick, mmid, amount, chance, ct_material));
     }
 
     @NotNull
-    public static Optional<BlockBreakAction> getLocationAction(@NotNull Block block) {
-        Location loc = block.getLocation();
-        if (BREAK_ACTION.containsKey(loc)) {
-            return Optional.of(BREAK_ACTION.get(loc));
+    public static Optional<BlockBreakAction> getLocationAction(@NotNull AbstractLocationSet set) {
+        if (BREAK_ACTION.containsKey(set)) {
+            return Optional.of(BREAK_ACTION.get(set));
         } else {
-            String name = block.getWorld().getName();
-            int x = loc.getBlockX();
-            int y = loc.getBlockY();
-            int z = loc.getBlockZ();
             AzPlugin.getInstance().runAsync(()-> {
                 try {
                     runPrepareStatement("SELECT * FROM `" + BREAK + "` WHERE `name` = ? AND `x` = ? AND `y` = ? AND `z` = ?", preparedStatement -> {
-                        preparedStatement.setString(1, name);
-                        preparedStatement.setInt(2, x);
-                        preparedStatement.setInt(3, y);
-                        preparedStatement.setInt(4, z);
+                        preparedStatement.setString(1, set.world().getName());
+                        preparedStatement.setInt(2, set.x());
+                        preparedStatement.setInt(3, set.y());
+                        preparedStatement.setInt(4, set.z());
                         try (ResultSet rs = preparedStatement.executeQuery()) {
                             if (rs.next()) {
                                 Material cm = rs.getString("ct_material") == null ? null : Material.valueOf(rs.getString("ct_material").toUpperCase());
-                                BREAK_ACTION.put(loc, new BlockBreakAction(
+                                BREAK_ACTION.put(set, new BlockBreakAction(
                                         rs.getInt("tick"),
                                         rs.getString("mmid"),
                                         rs.getInt("amount"),
@@ -85,7 +80,7 @@ public class DBBlockBreak extends DBCon {
                     throw new RuntimeException(e);
                 }
             });
-            return (BREAK_ACTION.containsKey(loc)) ? Optional.of(BREAK_ACTION.get(loc)) : Optional.empty();
+            return (BREAK_ACTION.containsKey(set)) ? Optional.of(BREAK_ACTION.get(set)) : Optional.empty();
         }
     }
 }
