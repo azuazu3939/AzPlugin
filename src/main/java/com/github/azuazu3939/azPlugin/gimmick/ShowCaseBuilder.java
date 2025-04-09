@@ -44,7 +44,7 @@ public class ShowCaseBuilder {
 
     private static final Map<UUID, Data> TEMP = new ConcurrentHashMap<>();
 
-    public static void register(@NotNull Player player, @NotNull AbstractAzHolder azHolder) {
+    public static void create(@NotNull Player player, @NotNull AbstractAzHolder azHolder) {
         Data data = new Data(azHolder.itemList(), azHolder.item());
         TEMP.put(player.getUniqueId(), data);
         player.closeInventory();

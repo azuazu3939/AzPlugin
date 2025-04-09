@@ -20,6 +20,6 @@ public class InteractAction extends BlockAction {
         Optional<BlockInteractAction> op2 = DBBlockInventory.getLocationAction(op.get(), new EmptyAzHolder(6, "テスト").getInventory());
         if (op2.isEmpty()) return;
         BlockInteractAction action = op2.get();
-        ShowCaseBuilder.register(player, new BaseAzHolder(6, "§b§lショップ§f: " + op.get(), action.inv(), action.cursor()));
+        ShowCaseBuilder.create(player, new BaseAzHolder(6, "§b§lショップ§f: " + op.get(), action.inv(), action.cursor()));
     }
 }
