@@ -8,6 +8,7 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
 import net.azisaba.loreeditor.api.event.EventBus;
 import net.azisaba.loreeditor.api.event.ItemEvent;
+import net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -34,8 +35,8 @@ public class Lore {
         MythicItem mi = (mmid == null) ? null : MythicBukkit.inst().getItemManager().getItem(mmid).orElse(null);
         String group = (mi == null) ? null : mi.getGroup();
         if (group == null) return;
-        e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(""));
-        e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§fカテゴリー: §7" + group));
+        e.addLore(Component.text(""));
+        e.addLore(Component.text("§fカテゴリー: §7" + group));
     }
 
     private void uniqueRegister(@NotNull ItemEvent e) {
@@ -44,9 +45,9 @@ public class Lore {
         Skill.getSkills(item).forEach(s -> {
             int i = Skill.getUniqueLevel(s.getKey(), item);
             if (i == -1) return;
-            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(""));
-            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(s.getName() + " " + s.getString(i, p)));
-            s.getLore().forEach(l -> e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(l)));
+            e.addLore(Component.text(""));
+            e.addLore(Component.text(s.getName() + " " + s.getString(i, p)));
+            s.getLore().forEach(l -> e.addLore(Component.text(l)));
         });
     }
 
@@ -58,14 +59,14 @@ public class Lore {
         double manaRegen = (s2 == null) ? 0 : Double.parseDouble(s2);
 
         if (mana <= 0  && manaRegen <= 0) return;
-        e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text(""));
-        e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§7装備したとき："));
+        e.addLore(Component.text(""));
+        e.addLore(Component.text("§7装備したとき："));
 
         if (mana > 0) {
-            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§bマナ +" + mana));
+            e.addLore(Component.text("§bマナ +" + mana));
         }
         if (manaRegen > 0) {
-            e.addLore(net.azisaba.loreeditor.libs.net.kyori.adventure.text.Component.text("§dマナ回復 +" + manaRegen + "§f/§d1s"));
+            e.addLore(Component.text("§dマナ回復 +" + manaRegen + "§f/§d1s"));
         }
     }
 }
