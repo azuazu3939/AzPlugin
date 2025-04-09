@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/src/main/java/com/github/azuazu3939/azPlugin/database/DBBlockBreak.java" dialect="ClickHouse" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/github/azuazu3939/azPlugin/database/DBBlockInteract.java" dialect="MariaDB" />
     <file url="file://$PROJECT_DIR$/src/main/java/com/github/azuazu3939/azPlugin/database/DBCon.java" dialect="MariaDB" />
+    <file url="file://$PROJECT_DIR$/src/main/java/com/github/azuazu3939/azPlugin/database/DBInventory.java" dialect="MariaDB" />
   </component>
 </project>

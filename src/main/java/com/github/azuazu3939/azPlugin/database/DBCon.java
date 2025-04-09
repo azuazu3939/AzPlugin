@@ -14,7 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.*;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DBCon {
@@ -23,6 +22,7 @@ public class DBCon {
 
     protected static String BREAK;
     protected static String INTERACT;
+    protected static String INVENTORY;
 
     protected static final Map<AbstractLocationSet, Integer> LOCATION_SET = new ConcurrentHashMap<>();
 
@@ -30,6 +30,7 @@ public class DBCon {
         if (!AzPlugin.getInstance().getConfig().getBoolean("Database.use")) return;
         BREAK = AzPlugin.getInstance().getConfig().getString("Database.break");
         INTERACT = AzPlugin.getInstance().getConfig().getString("Database.interact");
+        INVENTORY = AzPlugin.getInstance().getConfig().getString("Database.inventory");
 
         new org.mariadb.jdbc.Driver();
         HikariConfig config = new HikariConfig();
@@ -68,10 +69,15 @@ public class DBCon {
                 "`x` int, \n" +
                 "`y` smallint, \n" +
                 "`z` int, \n" +
-                "`slot` tinyint, \n" +
+                "`shop` varchar(36) NOT NULL, \n" +
+                "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INVENTORY + "` (\n" +
+                "`shop` varchar(36) NOT NULL , \n" +
+                "`slot` tinyint(54), \n" +
                 "`item` blob, \n" +
                 "`cursor` blob, \n" +
-                "PRIMARY KEY (`name`, `x`, `y`, `z`, `slot`)\n" +
+                "PRIMARY KEY (`shop`, `slot`)\n" +
                 ")", PreparedStatement::execute);
 
     }
@@ -177,7 +183,14 @@ public class DBCon {
         }, 200L);
     }
 
-    public record AbstractLocationSet(World world, int x, int y, int z) {}
+    public record AbstractLocationSet(World world, int x, int y, int z) {
+
+        @NotNull
+        @Contract("_ -> new")
+        public static AbstractLocationSet create(@NotNull Location loc) {
+            return new AbstractLocationSet(loc.getWorld(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        }
+    }
 
     @Nullable
     public static AbstractLocationSet getLocationSet(Location location) {

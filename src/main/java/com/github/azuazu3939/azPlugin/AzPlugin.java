@@ -1,7 +1,10 @@
 package com.github.azuazu3939.azPlugin;
 
 import com.github.azuazu3939.azPlugin.commands.*;
+import com.github.azuazu3939.azPlugin.database.DBBlockBreak;
+import com.github.azuazu3939.azPlugin.database.DBBlockInteract;
 import com.github.azuazu3939.azPlugin.database.DBCon;
+import com.github.azuazu3939.azPlugin.database.DBInventory;
 import com.github.azuazu3939.azPlugin.lib.Lore;
 import com.github.azuazu3939.azPlugin.lib.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.listener.*;
@@ -49,6 +52,12 @@ public final class AzPlugin extends JavaPlugin {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        runAsyncTimer(()-> {
+            DBBlockInteract.clear();
+            DBBlockBreak.clear();
+            DBInventory.clear();
+        }, 36000L, 36000L);
     }
 
     @Override
@@ -74,6 +83,7 @@ public final class AzPlugin extends JavaPlugin {
         pm.registerEvents(new PacketBlockListener(), this);
         pm.registerEvents(new GlobalSettingsListener(), this);
         pm.registerEvents(new GoldenAxeListener(), this);
+        pm.registerEvents(new AzInventroyListener(), this);
     }
 
     private void registerCommands() {
@@ -90,6 +100,7 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("//pos2")).setExecutor(new PositionCommand());
         Objects.requireNonNull(getCommand("//setItemStack")).setExecutor(new SetItemStackCommand());
         Objects.requireNonNull(getCommand("//setShop")).setExecutor(new SetShopCommand());
+        Objects.requireNonNull(getCommand("//createShop")).setExecutor(new CreateShopCommand());
         Objects.requireNonNull(getCommand("azcraft")).setExecutor(new AzCraftCommand());
     }
 

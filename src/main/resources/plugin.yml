@@ -59,17 +59,36 @@ commands:
       - vie
   //pos1:
     permission: azplugin.command.pos1
+    aliases:
+      - /apos1
+      - apos1
   //pos2:
     permission: azplugin.command.pos2
+    aliases:
+      - /apos2
+      - apos2
   //setItemStack:
     permission: azplugin.command.setitemdrop
     aliases:
-      - setitem
-      - setdrop
+      - //setdrop
+      - /asetitem
+      - /asetdrop
+      - asetitem
+      - asetdrop
   //setShop:
     permission: azplugin.command.setshop
     aliases:
-      - setsh
+      - asetshop
+      - /asetshop
+  //createShop:
+    permission: azplugin.command.createshop
+    aliases:
+      - /acreateshop
+      - acreateshop
+      - /acs
+      - acs
+      - /acshop
+      - acshop
   azcraft:
     permission: azplugin.command.azcraft
     aliases:
@@ -100,6 +119,7 @@ permissions:
       azplugin.command.setitemdrop: true
       azplugin.command.azcraft: true
       azplugin.command.setshop: true
+      azplugin.command.createshop: true
   azplugin.reload.mythicmobs:
     default: op
   azplugin.command.setmaxmana:
@@ -129,4 +149,6 @@ permissions:
   azplugin.command.azcraft:
     default: op
   azplugin.command.setshop:
+    default: op
+  azplugin.command.createshop:
     default: op

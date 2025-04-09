@@ -2,6 +2,7 @@ package com.github.azuazu3939.azPlugin.commands;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBBlockBreak;
+import com.github.azuazu3939.azPlugin.database.DBCon;
 import com.github.azuazu3939.azPlugin.util.SetCommandUtil;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
@@ -86,7 +87,7 @@ public class SetItemStackCommand implements TabExecutor {
 
             int i = 2;
             for (Location loc : locations) {
-                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationSync(loc, finalTick, mmid, finalAmount, finalChance, finalCt_material), i);
+                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationSync(DBCon.AbstractLocationSet.create(loc), finalTick, mmid, finalAmount, finalChance, finalCt_material), i);
                 i += 2;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);

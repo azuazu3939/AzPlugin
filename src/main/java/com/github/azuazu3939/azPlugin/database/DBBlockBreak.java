@@ -2,9 +2,7 @@ package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.lib.packet.BlockBreakAction;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -82,5 +80,9 @@ public class DBBlockBreak extends DBCon {
             });
             return (BREAK_ACTION.containsKey(set)) ? Optional.of(BREAK_ACTION.get(set)) : Optional.empty();
         }
+    }
+
+    public static void clear() {
+        BREAK_ACTION.clear();
     }
 }

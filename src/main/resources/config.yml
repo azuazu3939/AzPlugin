@@ -15,3 +15,4 @@ Database:
   password: password
   break: break
   interact: interact
+  inventory: inventory

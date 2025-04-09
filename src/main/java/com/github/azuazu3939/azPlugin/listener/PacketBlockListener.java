@@ -4,6 +4,7 @@ import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.DBBlockBreak;
 import com.github.azuazu3939.azPlugin.database.DBBlockInteract;
 import com.github.azuazu3939.azPlugin.database.DBCon;
+import com.github.azuazu3939.azPlugin.database.DBInventory;
 import com.github.azuazu3939.azPlugin.lib.ShowCaseBuilder;
 import com.github.azuazu3939.azPlugin.lib.holder.BaseAzHolder;
 import com.github.azuazu3939.azPlugin.lib.holder.EmptyAzHolder;
@@ -120,11 +121,12 @@ public class PacketBlockListener implements Listener {
     }
 
     private void interactProcess(@NotNull Player player, @NotNull DBCon.AbstractLocationSet set) {
-        Optional<BlockInteractAction> op = DBBlockInteract.getLocationAction(set, new EmptyAzHolder(6, "テスト").getInventory());
-        if (op.isPresent()) {
-            BlockInteractAction action = op.get();
-            new ShowCaseBuilder(player, new BaseAzHolder(6, "テスト", action.inv(), action.cursor()));
-        }
+        Optional<String> op = DBBlockInteract.getLocationAction(set);
+        if (op.isEmpty()) return;
+        Optional<BlockInteractAction> op2 = DBInventory.getLocationAction(op.get(), new EmptyAzHolder(6, "テスト").getInventory());
+        if (op2.isEmpty()) return;
+        BlockInteractAction action = op2.get();
+        ShowCaseBuilder.register(player, new BaseAzHolder(6, "テスト", action.inv(), action.cursor()));
     }
 
     private void mined(@NotNull Player player, BlockPos ps, BlockBreakAction action, long tick) {
