@@ -70,8 +70,6 @@ public class DBCon {
                 ")", PreparedStatement::execute);
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + DROP + "` (\n" +
                 "`trigger` varchar(64), \n" +
-                "`material` varchar(64), \n" +
-                "`tick` int DEFAULT 200, \n" +
                 "`mmid` varchar(128) NOT NULL, \n" +
                 "`amount` tinyint,  \n" +
                 "`chance` double, \n" +
@@ -145,7 +143,7 @@ public class DBCon {
     }
 
     @Contract(pure = true)
-    public static void runPrepareStatement(@Language("SQL") @NotNull String sql, SQLThrowableConsumer<PreparedStatement> action) throws SQLException {
+    public static void runPrepareStatement(@NotNull String sql, SQLThrowableConsumer<PreparedStatement> action) throws SQLException {
         use(connection -> {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 action.accept(preparedStatement);

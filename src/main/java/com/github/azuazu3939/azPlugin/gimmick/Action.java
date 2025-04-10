@@ -4,10 +4,7 @@ import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.*;
 import com.github.azuazu3939.azPlugin.gimmick.holder.BaseAzHolder;
 import com.github.azuazu3939.azPlugin.gimmick.holder.EmptyAzHolder;
-import com.github.azuazu3939.azPlugin.gimmick.records.BlockDropAction;
-import com.github.azuazu3939.azPlugin.gimmick.records.BlockEditAction;
-import com.github.azuazu3939.azPlugin.gimmick.records.BlockInteractAction;
-import com.github.azuazu3939.azPlugin.gimmick.records.BlockPlaceAction;
+import com.github.azuazu3939.azPlugin.gimmick.records.*;
 import com.github.azuazu3939.azPlugin.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.ArrayListMultimap;
@@ -51,9 +48,9 @@ public abstract class Action {
         return false;
     }
 
-    protected static void cooldown(@NotNull Player player, BlockPos ps, @NotNull BlockDropAction action) {
+    protected static void cooldown(@NotNull Player player, BlockPos ps, @NotNull BlockBreakAction action) {
         AzPlugin.getInstance().runAsync(() ->
-                PacketHandler.changeBlock(player, ps, action.ct_material()));
+                PacketHandler.changeBlock(player, ps, action.material()));
     }
 
     protected static void put(UUID uuid, BlockPos pos, long tick) {
@@ -77,15 +74,16 @@ public abstract class Action {
     }
 
     protected static void doBreak(@NotNull Player player, @NotNull DBCon.AbstractLocationSet set) {
-        Optional<String> st = DBBlockBreak.getLocationAction(set);
+        Optional<BlockBreakAction> st = DBBlockBreak.getLocationAction(set);
         if (st.isEmpty()) return;
-        Optional<BlockDropAction> ac = DBBlockDrop.getBlockDropAction(st.get());
-        if (ac.isEmpty()) return;
+        BlockBreakAction ac = st.get();
+        Optional<BlockDropAction> op2 = DBBlockDrop.getBlockDropAction(ac.trigger());
+        if (op2.isEmpty()) return;
 
-        BlockDropAction action = ac.get();
+        BlockDropAction action = op2.get();
         BlockPos ps = new BlockPos(set.x(), set.y(), set.z());
         if (isAffected(player.getUniqueId(), ps)) {
-            cooldown(player, ps, action);
+            cooldown(player, ps, ac);
             return;
         }
 
@@ -97,9 +95,9 @@ public abstract class Action {
         player.playSound(player, Sound.ENTITY_CHICKEN_EGG, 1 ,1);
 
         AzPlugin.getInstance().runAsyncLater(() -> { //戻す処理
-            PacketHandler.changeBlock(player, ps, action.ct_material());
-            if (action.tick() > 0) {
-                put(player.getUniqueId(), ps, action.tick());
+            PacketHandler.changeBlock(player, ps, ac.material());
+            if (ac.tick() > 0) {
+                put(player.getUniqueId(), ps, ac.tick());
             }
         }, 1);
     }
@@ -116,8 +114,8 @@ public abstract class Action {
     protected static void doPlace(Player player, @NotNull DBCon.AbstractLocationSet set) {
         Optional<BlockPlaceAction> op = DBBlockPlace.getLocationAction(set);
         if (op.isEmpty()) return;
-        BlockPlaceAction base = op.get();
-        Optional<BlockEditAction> op2 = DBBlockEdit.getBlockEditAction(base.trigger());
+        BlockPlaceAction ac = op.get();
+        Optional<BlockEditAction> op2 = DBBlockEdit.getBlockEditAction(ac.trigger());
         if (op2.isEmpty()) return;
         BlockEditAction actions = op2.get();
 

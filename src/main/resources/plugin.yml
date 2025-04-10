@@ -80,15 +80,6 @@ commands:
     aliases:
       - asetshop
       - /asetshop
-  //createShop:
-    permission: azplugin.command.createshop
-    aliases:
-      - /acreateshop
-      - acreateshop
-      - /acs
-      - acs
-      - /acshop
-      - acshop
   //temp:
     permission: azplugin.command.temp
     aliases:
@@ -120,7 +111,6 @@ permissions:
       azplugin.command.pos2: true
       azplugin.command.setitemdrop: true
       azplugin.command.setshop: true
-      azplugin.command.createshop: true
       azplugin.command.temp: true
   azplugin.reload.mythicmobs:
     default: op
@@ -145,12 +135,6 @@ permissions:
   azplugin.command.pos1:
     default: op
   azplugin.command.pos2:
-    default: op
-  azplugin.command.setitemdrop:
-    default: op
-  azplugin.command.setshop:
-    default: op
-  azplugin.command.createshop:
     default: op
   azplugin.command.temp:
     default: op

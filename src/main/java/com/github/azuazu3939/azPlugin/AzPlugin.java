@@ -67,9 +67,6 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("viewer")).setExecutor(new AttributeViewer());
         Objects.requireNonNull(getCommand("//pos1")).setExecutor(new PositionCommand());
         Objects.requireNonNull(getCommand("//pos2")).setExecutor(new PositionCommand());
-        Objects.requireNonNull(getCommand("//setItemStack")).setExecutor(new SetItemStackCommand());
-        Objects.requireNonNull(getCommand("//setShop")).setExecutor(new SetShopCommand());
-        Objects.requireNonNull(getCommand("//createShop")).setExecutor(new CreateShopCommand());
         Objects.requireNonNull(getCommand("//temp")).setExecutor(new TempCommand());
     }
 

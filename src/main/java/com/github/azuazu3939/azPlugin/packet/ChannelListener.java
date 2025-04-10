@@ -49,7 +49,7 @@ public class ChannelListener extends ChannelDuplexHandler {
         } else if (msg instanceof ClientboundBlockUpdatePacket packet) {
 
             if (Action.isAffected(player.getUniqueId(), packet.getPos())) return;
-            Action.load(player, packet.getPos()); //Break、Placeの実行
+            Action.load(player, packet.getPos());
         }
         super.write(ctx, msg, promise);
     }
