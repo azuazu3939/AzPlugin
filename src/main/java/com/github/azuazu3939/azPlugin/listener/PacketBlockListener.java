@@ -2,7 +2,7 @@ package com.github.azuazu3939.azPlugin.listener;
 
 import com.github.azuazu3939.azPlugin.commands.CreateShopCommand;
 import com.github.azuazu3939.azPlugin.database.DBBlockInventory;
-import com.github.azuazu3939.azPlugin.gimmick.actions.BlockAction;
+import com.github.azuazu3939.azPlugin.gimmick.Action;
 import com.github.azuazu3939.azPlugin.gimmick.holder.RegisterAzHolder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,12 +16,12 @@ public class PacketBlockListener implements Listener {
 
     @EventHandler
     public void onJoin(@NotNull PlayerJoinEvent event) {
-        BlockAction.clear(event.getPlayer());
+        Action.clear(event.getPlayer());
     }
 
     @EventHandler
     public void onQuit(@NotNull PlayerQuitEvent event) {
-        BlockAction.clear(event.getPlayer());
+        Action.clear(event.getPlayer());
     }
 
     @EventHandler

@@ -45,6 +45,8 @@ public final class Azurite {
             DBBlockBreak.clear();
             DBBlockInventory.clear();
             DBBlockPlace.clear();
+            DBBlockDrop.clear();
+            DBBlockEdit.clear();
         }, 6000L, 6000L);
 
         Bukkit.getOnlinePlayers().forEach(player -> {

@@ -1,8 +1,6 @@
 package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
-import com.github.azuazu3939.azPlugin.gimmick.records.BlockBreakAction;
-import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -13,45 +11,36 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DBBlockBreak extends DBCon {
 
-    private static final Map<AbstractLocationSet, BlockBreakAction> BREAK_ACTION = new ConcurrentHashMap<>();
+    private static final Map<AbstractLocationSet, String> BREAK_ACTION = new ConcurrentHashMap<>();
 
-    public static void updateLocationAsync(AbstractLocationSet set, int tick, String mmid, int amount, double chance, Material ct_material) {
-        AzPlugin.getInstance().runAsync(()-> updateLocationSync(set, tick, mmid, amount, chance, ct_material));
+    public static void updateLocationAsync(AbstractLocationSet set, String trigger) {
+        AzPlugin.getInstance().runAsync(()-> updateLocationSync(set, trigger));
     }
 
-    public static void updateLocationSync(AbstractLocationSet set, int tick, String mmid, int amount, double chance, Material ct_material) {
+    public static void updateLocationSync(AbstractLocationSet set, String trigger) {
         try {
             runPrepareStatement("INSERT INTO `" + BREAK + "` " +
-                    "(`name`, `x`, `y`, `z`, `tick`, `mmid`, `amount`, `chance`, `ct_material`)" +
-                    " VALUES (?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
-                    "`tick` = ?, `mmid` = ?, `amount` = ?, `chance` =?, `ct_material` =?;", preparedStatement -> {
+                    "(`name`, `x`, `y`, `z`, trigger`)" +
+                    " VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
+                    "trigger` =?;", preparedStatement -> {
 
                 preparedStatement.setString(1, set.world().getName());
                 preparedStatement.setInt(2, set.x());
                 preparedStatement.setInt(3, set.y());
                 preparedStatement.setInt(4, set.z());
-                preparedStatement.setInt(5, tick);
-                preparedStatement.setString(6, mmid);
-                preparedStatement.setInt(7, amount);
-                preparedStatement.setDouble(8, chance);
-                preparedStatement.setString(9, ct_material == null ? null : ct_material.toString());
-
-                preparedStatement.setInt(10, tick);
-                preparedStatement.setString(11, mmid);
-                preparedStatement.setInt(12, amount);
-                preparedStatement.setDouble(13, chance);
-                preparedStatement.setString(14, ct_material == null ? null : ct_material.toString());
+                preparedStatement.setString(5, trigger);
+                preparedStatement.setString(6, trigger);
                 preparedStatement.execute();
                 setBreak(set);
             });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        BREAK_ACTION.put(set, new BlockBreakAction(tick, mmid, amount, chance, ct_material));
+        BREAK_ACTION.put(set, trigger);
     }
 
     @NotNull
-    public static Optional<BlockBreakAction> getLocationAction(@NotNull AbstractLocationSet set) {
+    public static Optional<String> getLocationAction(@NotNull AbstractLocationSet set) {
         if (BREAK_ACTION.containsKey(set)) {
             return Optional.of(BREAK_ACTION.get(set));
         } else {
@@ -64,13 +53,7 @@ public class DBBlockBreak extends DBCon {
                         preparedStatement.setInt(4, set.z());
                         try (ResultSet rs = preparedStatement.executeQuery()) {
                             if (rs.next()) {
-                                Material cm = rs.getString("ct_material") == null ? null : Material.valueOf(rs.getString("ct_material").toUpperCase());
-                                BREAK_ACTION.put(set, new BlockBreakAction(
-                                        rs.getInt("tick"),
-                                        rs.getString("mmid"),
-                                        rs.getInt("amount"),
-                                        rs.getDouble("chance"),
-                                        cm));
+                                BREAK_ACTION.put(set, rs.getString("trigger"));
                             }
                         }
 

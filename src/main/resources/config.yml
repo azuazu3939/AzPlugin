@@ -17,3 +17,5 @@ Database:
   interact: interact
   inventory: inventory
   place: place
+  edit: edit
+  drop: drop

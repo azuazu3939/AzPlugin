@@ -24,6 +24,8 @@ public class DBCon {
     protected static String INTERACT;
     protected static String INVENTORY;
     protected static String PLACE;
+    protected static String EDIT;
+    protected static String DROP;
 
     protected static final Map<AbstractLocationSet, Integer> LOCATION_SET = new ConcurrentHashMap<>();
 
@@ -33,6 +35,8 @@ public class DBCon {
         INTERACT = AzPlugin.getInstance().getConfig().getString("Database.interact");
         INVENTORY = AzPlugin.getInstance().getConfig().getString("Database.inventory");
         PLACE = AzPlugin.getInstance().getConfig().getString("Database.place");
+        EDIT = AzPlugin.getInstance().getConfig().getString("Database.edit");
+        DROP = AzPlugin.getInstance().getConfig().getString("Database.drop");
 
         new org.mariadb.jdbc.Driver();
         HikariConfig config = new HikariConfig();
@@ -59,13 +63,21 @@ public class DBCon {
                 "`x` int, \n" +
                 "`y` smallint, \n" +
                 "`z` int, \n" +
+                "`trigger` varchar(64), \n " +
+                "`tick` int DEFAULT 200, \n" +
+                "`material` varchar(64), \n" +
+                "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + DROP + "` (\n" +
+                "`trigger` varchar(64), \n" +
+                "`material` varchar(64), \n" +
                 "`tick` int DEFAULT 200, \n" +
                 "`mmid` varchar(128) NOT NULL, \n" +
                 "`amount` tinyint,  \n" +
                 "`chance` double, \n" +
-                "`ct_material` varchar(64), \n" +
-                "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
+                "PRIMARY KEY (`trigger`)\n" +
                 ")", PreparedStatement::execute);
+
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INTERACT + "` (\n" +
                 "`name` varchar(64) NOT NULL , \n" +
                 "`x` int, \n" +
@@ -80,15 +92,26 @@ public class DBCon {
                 "`cursor` blob, \n" +
                 "PRIMARY KEY (`shop`)\n" +
                 ")", PreparedStatement::execute);
+
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + PLACE + "` (\n" +
                 "`name` varchar(64) NOT NULL, \n" +
                 "`x` int, \n" +
                 "`y` smallint, \n" +
                 "`z` int, \n" +
-                "`tick` int DEFAULT 200, \n" +
-                "`material` varchar(64), \n" +
                 "`trigger` varchar(64), \n " +
+                "`material` varchar(64), \n" +
+                "`tick` int DEFAULT 200, \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n " +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + EDIT + "` (\n" +
+                "`name` varchar(64) NOT NULL, \n" +
+                "`x` int, \n" +
+                "`y` smallint, \n" +
+                "`z` int, \n" +
+                "`trigger` varchar(64), \n" +
+                "`material` varchar(64), \n" +
+                "`tick` int DEFAULT 200, \n" +
+                "PRIMARY KEY (`name`, `x`, `y`, `z`, `trigger`)\n" +
                 ")", PreparedStatement::execute);
 
     }
@@ -204,9 +227,7 @@ public class DBCon {
         LOCATION_SET.put(set, 1);
     }
 
-    protected static void setPlace(AbstractLocationSet set) {
-        LOCATION_SET.put(set, 3);
-    }
+    protected static void setPlace(AbstractLocationSet set) {LOCATION_SET.put(set, 3);}
 
     public record AbstractLocationSet(World world, int x, int y, int z) {
 

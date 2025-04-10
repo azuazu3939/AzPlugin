@@ -70,7 +70,7 @@ public final class AzPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("//setItemStack")).setExecutor(new SetItemStackCommand());
         Objects.requireNonNull(getCommand("//setShop")).setExecutor(new SetShopCommand());
         Objects.requireNonNull(getCommand("//createShop")).setExecutor(new CreateShopCommand());
-        Objects.requireNonNull(getCommand("azcraft")).setExecutor(new AzCraftCommand());
+        Objects.requireNonNull(getCommand("//temp")).setExecutor(new TempCommand());
     }
 
     @NotNull

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class SetItemStackCommand implements TabExecutor {
 
@@ -25,7 +26,7 @@ public class SetItemStackCommand implements TabExecutor {
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (!(commandSender instanceof Player player)) return false;
         if (strings.length < 2) {
-            player.sendMessage(Component.text("///setDrop [<Material>)] [<mmid>] <amount(1to64>> <chance(0to1)> <reMineTick(default 200)> <ct_material(CTのマテリアルデフォ岩盤>"));
+            player.sendMessage(Component.text("///setDrop [<Material>)] [<editId>] <reMineTick(default 200)> <ct_material(CTのマテリアルデフォ岩盤>"));
             return true;
         }
         BoundingBox box = PositionCommand.getArea(player);
@@ -41,53 +42,27 @@ public class SetItemStackCommand implements TabExecutor {
             return true;
         }
 
-        String mmid = strings[1];
-        int amount = 1;
-        if (strings.length >= 3) {
-            try {
-                amount = Integer.parseInt(strings[2]);
-            } catch (NumberFormatException ignored) {
+        String trigger;
+        try {
+            trigger = strings[1];
+            Pattern p = Pattern.compile("[a-zA-Z0-9_]");
+            if (!p.matcher(trigger).find()) {
+                player.sendMessage(Component.text("editIdはazAZ09_のみで構成される必要があります。"));
+                return true;
             }
+        } catch (Exception e) {
+            player.sendMessage(Component.text("editIdはazAZ09_のみで構成される必要があります。"));
+            return true;
         }
 
-        double chance = 1;
-        if (strings.length >= 4) {
-            try {
-                chance = Double.parseDouble(strings[3]);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        int tick = 200;
-        if (strings.length >= 5) {
-            try {
-                tick = Integer.parseInt(strings[4]);
-            } catch (NumberFormatException ignored) {
-            }
-        }
-
-        Material ct_material = Material.BEDROCK;
-        if (strings.length >= 6) {
-            try {
-                Material mm = Material.valueOf(strings[5].toUpperCase());
-                if (mm != null && mm.isBlock()) {
-                    ct_material = mm;
-                }
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-
-        int finalTick = tick;
-        int finalAmount = amount;
-        double finalChance = chance;
-        Material finalCt_material = ct_material;
+        String finalTrigger = trigger;
         AzPlugin.getInstance().runAsync(()-> {
             if (player == null) return;
             Set<Location> locations = SetCommandUtil.getLocations(player, box, material);
 
             int i = 2;
             for (Location loc : locations) {
-                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationAsync(DBCon.AbstractLocationSet.create(loc), finalTick, mmid, finalAmount, finalChance, finalCt_material), i);
+                AzPlugin.getInstance().runAsyncLater(()-> DBBlockBreak.updateLocationAsync(DBCon.AbstractLocationSet.create(loc), finalTrigger), i);
                 i += 2;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);

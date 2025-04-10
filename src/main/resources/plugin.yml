@@ -89,12 +89,14 @@ commands:
       - acs
       - /acshop
       - acshop
-  azcraft:
-    permission: azplugin.command.azcraft
+  //temp:
+    permission: azplugin.command.temp
     aliases:
-      - azc
-      - azwb
-      - awb
+      - //tmp
+      - /temp
+      - /tmp
+      - temp
+      - tmp
 
 permissions:
   azplugin.*:
@@ -117,9 +119,9 @@ permissions:
       azplugin.command.pos1: true
       azplugin.command.pos2: true
       azplugin.command.setitemdrop: true
-      azplugin.command.azcraft: true
       azplugin.command.setshop: true
       azplugin.command.createshop: true
+      azplugin.command.temp: true
   azplugin.reload.mythicmobs:
     default: op
   azplugin.command.setmaxmana:
@@ -146,9 +148,9 @@ permissions:
     default: op
   azplugin.command.setitemdrop:
     default: op
-  azplugin.command.azcraft:
-    default: op
   azplugin.command.setshop:
     default: op
   azplugin.command.createshop:
+    default: op
+  azplugin.command.temp:
     default: op
