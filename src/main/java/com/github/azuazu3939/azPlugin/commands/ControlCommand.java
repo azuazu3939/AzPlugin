@@ -3,6 +3,8 @@ package com.github.azuazu3939.azPlugin.commands;
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.database.*;
 import com.github.azuazu3939.azPlugin.gimmick.holder.RegisterAzHolder;
+import com.github.azuazu3939.azPlugin.gimmick.records.BlockBreakAction;
+import com.github.azuazu3939.azPlugin.gimmick.records.BlockPlaceAction;
 import com.github.azuazu3939.azPlugin.util.SetCommandUtil;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.items.MythicItem;
@@ -30,6 +32,7 @@ public class ControlCommand implements TabExecutor {
         if (!(commandSender instanceof Player player)) return false;
         if (strings.length < 3) return help(player);
         String get = strings[0];
+        if (get.equalsIgnoreCase("list")) return list(player);
         if (get.equalsIgnoreCase("inventory") && strings.length >= 3) return inventory(player, strings);
         if (get.equalsIgnoreCase("edit") && strings.length >= 4) return edit(player, strings);
         if (get.equalsIgnoreCase("drop") && strings.length >= 4) return drop(player, strings);
@@ -226,6 +229,31 @@ public class ControlCommand implements TabExecutor {
         return false;
     }
 
+    private boolean list(Player player) {
+        DBCon.getLocationSet().forEach((key, value) -> {
+
+            if (value == 1) {
+                Optional<BlockBreakAction> st = DBBlockBreak.getLocationAction(key);
+                if (st.isEmpty()) return;
+                player.sendMessage(Component.text("Break-Drop: " + st.get().trigger()));
+            }
+
+            if (value == 2) {
+                Optional<String> op2 = DBBlockInteract.getLocationAction(key);
+                if (op2.isEmpty()) return;
+                player.sendMessage(Component.text("Interact-Inventory: " + op2.get()));
+            }
+
+            if (value == 3) {
+                Optional<BlockPlaceAction> st = DBBlockPlace.getLocationAction(key);
+                if (st.isEmpty()) return;
+                player.sendMessage(Component.text("Place-Edit: " + st.get().trigger()));
+            }
+        });
+        player.sendMessage(Component.text("§72回実行していない場合は、結果が不十分な可能性があります。(3回以上は意味がない)"));
+        return true;
+    }
+
     private boolean checkPattern(Player player, String string) {
         Pattern p = Pattern.compile("[a-zA-Z0-9_]");
         boolean result = p.matcher(string).find();
@@ -240,6 +268,8 @@ public class ControlCommand implements TabExecutor {
     }
 
     private boolean help(@NotNull Player player) {
+        player.sendMessage(Component.text("------------------------------------------------------------"));
+        player.sendMessage(Component.text("///ctrl list"));
         player.sendMessage(Component.text("------------------------------------------------------------"));
         player.sendMessage(Component.text("///ctrl inventory create [<shop_name>] <display_name>"));
         player.sendMessage(Component.text("///ctrl inventory open [<shop_name>]"));
@@ -308,7 +338,7 @@ public class ControlCommand implements TabExecutor {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (!(commandSender instanceof Player)) return null;
         if (strings.length == 1) {
-            return List.of("inventory", "drop", "edit", "define");
+            return List.of("inventory", "drop", "edit", "define", "list");
         }
         if (strings.length == 2) {
             String write = strings[0];

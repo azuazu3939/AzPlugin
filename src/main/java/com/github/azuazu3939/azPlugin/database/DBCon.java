@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -243,10 +244,13 @@ public class DBCon {
         LOCATION_SET.put(set, 2);
     }
 
-    protected static void setBreak(AbstractLocationSet set) {LOCATION_SET.put(set, 1);
-    }
+    protected static void setBreak(AbstractLocationSet set) {LOCATION_SET.put(set, 1);}
 
     protected static void setPlace(AbstractLocationSet set) {LOCATION_SET.put(set, 3);}
+
+    @NotNull
+    @Contract(value = " -> new", pure = true)
+    public static Map<AbstractLocationSet, Integer> getLocationSet() {return new HashMap<>(LOCATION_SET);}
 
     public record AbstractLocationSet(World world, int x, int y, int z) {
 
