@@ -30,6 +30,7 @@ public class ControlCommand implements TabExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (!(commandSender instanceof Player player)) return false;
+        if (strings.length < 1) return help(player);
         String get = strings[0];
         if (get.equalsIgnoreCase("list")) return list(player);
 
