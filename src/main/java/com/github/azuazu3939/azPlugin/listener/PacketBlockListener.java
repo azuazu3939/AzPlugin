@@ -1,6 +1,6 @@
 package com.github.azuazu3939.azPlugin.listener;
 
-import com.github.azuazu3939.azPlugin.commands.TempCommand;
+import com.github.azuazu3939.azPlugin.commands.ControlCommand;
 import com.github.azuazu3939.azPlugin.database.DBBlockInventory;
 import com.github.azuazu3939.azPlugin.gimmick.Action;
 import com.github.azuazu3939.azPlugin.gimmick.holder.RegisterAzHolder;
@@ -35,7 +35,7 @@ public class PacketBlockListener implements Listener {
     public void onInventoryClose(@NotNull InventoryCloseEvent e) {
         Inventory inv = e.getInventory();
         if (inv.getHolder() instanceof RegisterAzHolder holder) {
-            TempCommand.putShop(holder.getShopId(), holder.getInventory());
+            ControlCommand.putShop(holder.getShopId(), holder.getInventory());
             e.getPlayer().sendMessage(Component.text("///temp inventory open " + holder.getShopId() + " で、編集できます"));
             DBBlockInventory.updateBlockInteractAsync(holder.getShopId(), inv, e.getView().getCursor());
         }

@@ -85,6 +85,21 @@ public class DBBlockEdit extends DBCon {
         return TEMP_EDIT.containsKey(trigger) ? Optional.of(TEMP_EDIT.get(trigger)) : Optional.empty();
     }
 
+    public static void delete(String key) {
+        AzPlugin.getInstance().runAsync(() -> {
+            try {
+                runPrepareStatement("DELETE FROM `" + EDIT + "` WHERE `trigger` =?;", preparedStatement -> {
+                    preparedStatement.setString(1, key);
+                    preparedStatement.execute();
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                TEMP_EDIT.remove(key);
+            }
+        });
+    }
+
     public static void clear() {TEMP_EDIT.clear();}
 
     @NotNull

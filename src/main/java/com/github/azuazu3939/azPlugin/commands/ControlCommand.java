@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class TempCommand implements TabExecutor {
+public class ControlCommand implements TabExecutor {
 
     private static final Map<String, Inventory> INV_STRING = new HashMap<>();
 
@@ -64,6 +64,23 @@ public class TempCommand implements TabExecutor {
                     player.sendMessage(Component.text("§cそのShopIdは存在しません。"));
                 }
             }
+        } else if (arg2.equalsIgnoreCase("delete")) {
+            if (DBBlockInventory.get().contains(key)) {
+                DBBlockInventory.delete(key);
+                player.sendMessage(Component.text("データを削除しました。"));
+            }
+            if (strings.length >= 4) {
+                boolean b = false;
+                try {
+                    b = Boolean.parseBoolean(strings[3]);
+                } catch (Exception ignored) {}
+
+                if (b) {
+                    DBBlockInteract.delete(key);
+                    player.sendMessage(Component.text("座標データを削除しました。"));
+                }
+            }
+            return true;
         }
         return false;
     }
@@ -96,6 +113,22 @@ public class TempCommand implements TabExecutor {
                 DBBlockEdit.updateLocationAsync(SetCommandUtil.getLocations(player, box), tick, material, key);
                 player.sendMessage(Component.text("データの書き込みが終了しました。"));
                 return true;
+            }
+        } else if (arg2.equalsIgnoreCase("delete")) {
+            if (DBBlockEdit.get().contains(key)) {
+                DBBlockEdit.delete(key);
+                player.sendMessage(Component.text("データを削除しました。"));
+            }
+            if (strings.length >= 4) {
+                boolean b = false;
+                try {
+                    b = Boolean.parseBoolean(strings[3]);
+                } catch (Exception ignored) {}
+
+                if (b) {
+                    DBBlockPlace.delete(key);
+                    player.sendMessage(Component.text("座標データを削除しました。"));
+                }
             }
         }
         return false;
@@ -132,6 +165,23 @@ public class TempCommand implements TabExecutor {
                DBBlockDrop.updateLocationAsync(key, value, amount, chance);
                player.sendMessage(Component.text("データの書き込みが終了しました。"));
                return true;
+            }
+        } else if (arg2.equalsIgnoreCase("delete")) {
+            if (DBBlockDrop.get().contains(key)) {
+                DBBlockDrop.delete(key);
+                player.sendMessage(Component.text("データを削除しました。"));
+            }
+            if (strings.length >= 4) {
+                boolean b = false;
+                try {
+                    b = Boolean.parseBoolean(strings[3]);
+                } catch (Exception ignored) {
+                }
+
+                if (b) {
+                    DBBlockBreak.delete(key);
+                    player.sendMessage(Component.text("座標データを削除しました。"));
+                }
             }
         }
         return false;
@@ -191,19 +241,23 @@ public class TempCommand implements TabExecutor {
 
     private boolean help(@NotNull Player player) {
         player.sendMessage(Component.text("------------------------------------------------------------"));
-        player.sendMessage(Component.text("///temp inventory create [<shop_name>] <display_name>"));
-        player.sendMessage(Component.text("///temp inventory open [<shop_name>]"));
+        player.sendMessage(Component.text("///ctrl inventory create [<shop_name>] <display_name>"));
+        player.sendMessage(Component.text("///ctrl inventory open [<shop_name>]"));
+        player.sendMessage(Component.text("///ctrl inventory delete [<shop_name>] <all_delete>"));
         player.sendMessage(Component.text("------------------------------------------------------------"));
-        player.sendMessage(Component.text("///temp drop create [<drop_name>] [<mmid>] <amount> <chance> "));
+        player.sendMessage(Component.text("///ctrl drop create [<drop_name>] [<mmid>] <amount> <chance>"));
+        player.sendMessage(Component.text("///ctrl drop delete [<drop_name>] <all_delete>"));
         player.sendMessage(Component.text("------------------------------------------------------------"));
-        player.sendMessage(Component.text("///temp edit create [<edit_name>] [<place_material>] <place_tick>"));
+        player.sendMessage(Component.text("///ctrl edit create [<edit_name>] [<place_material>] <place_tick>"));
+        player.sendMessage(Component.text("///ctrl edit delete [<edit_name>] <all_delete>"));
         player.sendMessage(Component.text("------------------------------------------------------------"));
         player.sendMessage(Component.text(""));
-        player.sendMessage(Component.text("///temp define [<inventory|drop|edit>] [<name_id>] [<filter_material>] <tick> <material>"));
+        player.sendMessage(Component.text("///ctrl define [<inventory|drop|edit>] [<name_id>] [<filter_material>] <tick> <material>"));
         player.sendMessage(Component.text(""));
         player.sendMessage(Component.text("------------------------------------------------------------"));
         player.sendMessage(Component.text("**defineは、///pos1、///pos2でエリアを選択しておく必要があります**"));
         player.sendMessage(Component.text("**editのcreateは、defineとは別で、///pos1、///pos2でエリアを選択しておく必要があります**"));
+        player.sendMessage(Component.text("**all_deleteはtrue/falseで、デフォルトはfalseです**"));
         return true;
     }
 

@@ -80,4 +80,17 @@ public class DBBlockBreak extends DBCon {
     public static void clear() {
         BREAK_ACTION.clear();
     }
+
+    public static void delete(String key) {
+        AzPlugin.getInstance().runAsync(()-> {
+            try {
+                runPrepareStatement("DELETE FROM `" + BREAK + "` WHERE `trigger` =?;", preparedStatement -> {
+                    preparedStatement.setString(1, key);
+                    preparedStatement.execute();
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
 }

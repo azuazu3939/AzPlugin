@@ -80,6 +80,21 @@ public class DBBlockInventory extends DBCon {
         }
     }
 
+    public static void delete(@NotNull String key) {
+        AzPlugin.getInstance().runAsync(() -> {
+            try {
+                runPrepareStatement("DELETE FROM `" + INVENTORY + "` WHERE `shop` = ?;", preparedStatement -> {
+                    preparedStatement.setString(1, key);
+                    preparedStatement.execute();
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                TEMP_INVENTORY.remove(key);
+            }
+        });
+    }
+
     public static void clear() {
         TEMP_INVENTORY.clear();
     }

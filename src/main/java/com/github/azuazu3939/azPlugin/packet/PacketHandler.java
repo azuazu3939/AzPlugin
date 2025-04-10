@@ -2,6 +2,8 @@ package com.github.azuazu3939.azPlugin.packet;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.gimmick.ShowCaseBuilder;
+import io.lumine.mythic.api.adapters.AbstractBlock;
+import io.lumine.mythic.api.adapters.AbstractLocation;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitBlock;
@@ -71,6 +73,20 @@ public class PacketHandler {
                 Collections.singleton(BukkitAdapter.adapt(p)),
                 BukkitAdapter.adapt(new Location(p.getWorld(), pos.getX(), pos.getY(), pos.getZ())),
                 new BukkitBlock(material));
+    }
+
+    public static void multiChangeBlock(Player p, @NotNull Collection<BlockPos> poss, Material material) {
+        Map<AbstractLocation, AbstractBlock> mp = new HashMap<>();
+        poss.forEach(pos ->
+                mp.put(BukkitAdapter.adapt(
+                        new Location(p.getWorld(), pos.getX(), pos.getY(), pos.getZ())),
+                        new BukkitBlock(material)
+                )
+        );
+        MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendMultiBlockChange(
+                Collections.singleton(BukkitAdapter.adapt(p)),
+                mp
+        );
     }
 
     public static void undoEffected(Player p, BlockPos pos) {

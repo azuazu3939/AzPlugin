@@ -66,6 +66,19 @@ public class DBBlockInteract extends DBCon {
         }
     }
 
+    public static void delete(String key) {
+        AzPlugin.getInstance().runAsync(() -> {
+            try {
+                runPrepareStatement("DELETE FROM `" + INTERACT + "` WHERE `shop` =?;", preparedStatement -> {
+                    preparedStatement.setString(1, key);
+                    preparedStatement.execute();
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public static void clear() {
         INTERACT_ACTION.clear();
     }

@@ -1,5 +1,5 @@
 name: AzPlugin
-version: '2.1.0'
+version: '2.2.0'
 main: com.github.azuazu3939.azPlugin.AzPlugin
 api-version: '1.21'
 authors: [ MCLove32 ]
@@ -80,14 +80,12 @@ commands:
     aliases:
       - asetshop
       - /asetshop
-  //temp:
-    permission: azplugin.command.temp
+  //ctrl:
+    permission: azplugin.command.ctrl
     aliases:
-      - //tmp
-      - /temp
-      - /tmp
-      - temp
-      - tmp
+      - /ctrl
+      - ctrl
+
 
 permissions:
   azplugin.*:
@@ -111,7 +109,7 @@ permissions:
       azplugin.command.pos2: true
       azplugin.command.setitemdrop: true
       azplugin.command.setshop: true
-      azplugin.command.temp: true
+      azplugin.command.ctrl: true
   azplugin.reload.mythicmobs:
     default: op
   azplugin.command.setmaxmana:
@@ -136,5 +134,5 @@ permissions:
     default: op
   azplugin.command.pos2:
     default: op
-  azplugin.command.temp:
+  azplugin.command.ctrl:
     default: op

@@ -77,4 +77,19 @@ public class DBBlockDrop extends DBCon {
     @NotNull
     @Contract(pure = true)
     public static Collection<String> get() {return TEMP_DROP.keySet();}
+
+    public static void delete(String key) {
+        AzPlugin.getInstance().runAsync(()-> {
+            try {
+                runPrepareStatement("DELETE FROM `" + DROP + "` WHERE `trigger` =?;", preparedStatement -> {
+                    preparedStatement.setString(1, key);
+                    preparedStatement.execute();
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                TEMP_DROP.remove(key);
+            }
+        });
+    }
 }
