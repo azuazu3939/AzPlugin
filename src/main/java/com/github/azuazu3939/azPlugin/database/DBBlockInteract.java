@@ -72,6 +72,7 @@ public class DBBlockInteract extends DBCon {
                 runPrepareStatement("DELETE FROM `" + INTERACT + "` WHERE `shop` =?;", preparedStatement -> {
                     preparedStatement.setString(1, key);
                     preparedStatement.execute();
+                    clear();
                 });
             } catch (SQLException e) {
                 throw new RuntimeException(e);

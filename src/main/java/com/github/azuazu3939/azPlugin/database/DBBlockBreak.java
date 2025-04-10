@@ -87,6 +87,7 @@ public class DBBlockBreak extends DBCon {
                 runPrepareStatement("DELETE FROM `" + BREAK + "` WHERE `trigger` =?;", preparedStatement -> {
                     preparedStatement.setString(1, key);
                     preparedStatement.execute();
+                    clear();
                 });
             } catch (SQLException e) {
                 throw new RuntimeException(e);

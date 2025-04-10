@@ -70,10 +70,8 @@ public class ControlCommand implements TabExecutor {
                 }
             }
         } else if (arg2.equalsIgnoreCase("delete")) {
-            if (DBBlockInventory.get().contains(key)) {
-                DBBlockInventory.delete(key);
-                player.sendMessage(Component.text("データを削除しました。"));
-            }
+            DBBlockInventory.delete(key);
+            player.sendMessage(Component.text("データを削除しました。"));
             if (strings.length >= 4) {
                 boolean b = false;
                 try {
@@ -120,10 +118,8 @@ public class ControlCommand implements TabExecutor {
                 return true;
             }
         } else if (arg2.equalsIgnoreCase("delete")) {
-            if (DBBlockEdit.get().contains(key)) {
-                DBBlockEdit.delete(key);
-                player.sendMessage(Component.text("データを削除しました。"));
-            }
+            DBBlockEdit.delete(key);
+            player.sendMessage(Component.text("データを削除しました。"));
             if (strings.length >= 4) {
                 boolean b = false;
                 try {
@@ -172,10 +168,8 @@ public class ControlCommand implements TabExecutor {
                return true;
             }
         } else if (arg2.equalsIgnoreCase("delete")) {
-            if (DBBlockDrop.get().contains(key)) {
-                DBBlockDrop.delete(key);
-                player.sendMessage(Component.text("データを削除しました。"));
-            }
+            DBBlockDrop.delete(key);
+            player.sendMessage(Component.text("データを削除しました。"));
             if (strings.length >= 4) {
                 boolean b = false;
                 try {
@@ -231,7 +225,7 @@ public class ControlCommand implements TabExecutor {
         return false;
     }
 
-    private boolean list(Player player) {
+    private boolean list(@NotNull Player player) {
         DBCon.getLocationSet().forEach((key, value) -> {
 
             if (value == 1) {
