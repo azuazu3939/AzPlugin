@@ -312,9 +312,9 @@ public class ControlCommand implements TabExecutor {
         }
         if (strings.length == 2) {
             String write = strings[0];
-            if (write.equalsIgnoreCase("inventory")) return List.of("create", "open");
-            if (write.equalsIgnoreCase("drop")) return List.of("create");
-            if (write.equalsIgnoreCase("edit")) return List.of("create");
+            if (write.equalsIgnoreCase("inventory")) return List.of("create", "open", "delete");
+            if (write.equalsIgnoreCase("drop")) return List.of("create", "delete");
+            if (write.equalsIgnoreCase("edit")) return List.of("create", "delete");
             if (write.equalsIgnoreCase("define")) return List.of("inventory", "drop", "edit");
         }
         if (strings.length == 3) {
