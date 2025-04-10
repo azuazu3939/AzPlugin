@@ -46,7 +46,7 @@ public class DBBlockInventory extends DBCon {
 
     @NotNull
     public static Optional<BlockInteractAction> getLocationAction(@NotNull String key, Inventory inv) {
-        if (TEMP_INVENTORY.containsKey(key)) {
+        if (!TEMP_INVENTORY.isEmpty() && TEMP_INVENTORY.containsKey(key)) {
             return Optional.of(TEMP_INVENTORY.get(key));
         } else {
             AzPlugin.getInstance().runAsync(() -> {
@@ -86,7 +86,6 @@ public class DBBlockInventory extends DBCon {
 
     @NotNull
     @Contract(pure = true)
-    public static Collection<String> getKeys() {
-        return TEMP_INVENTORY.keySet();
+    public static Collection<String> get() {return TEMP_INVENTORY.keySet();
     }
 }

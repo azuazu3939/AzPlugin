@@ -1,5 +1,8 @@
 package com.github.azuazu3939.azPlugin.commands;
 
+import com.github.azuazu3939.azPlugin.util.Utils;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -21,9 +24,15 @@ public class PositionCommand implements CommandExecutor {
     private static final Map<UUID, Vector> POS1 = new HashMap<>();
     private static final Map<UUID, Vector> POS2 = new HashMap<>();
 
+    private static final Multimap<Class<?>, UUID> multimap = HashMultimap.create();
+
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] strings) {
         if (!(commandSender instanceof Player player)) return false;
+
+        if (Utils.isCoolTime(getClass(), player.getUniqueId(), multimap)) return false;
+        Utils.setCoolTime(getClass(), player.getUniqueId(), multimap, 1);
+
         if (s.endsWith("1")) return setPos1(player, player.getLocation());
         if (s.endsWith("2")) return setPos2(player, player.getLocation());
         return false;
@@ -31,13 +40,13 @@ public class PositionCommand implements CommandExecutor {
 
     public static boolean setPos1(@NotNull Player player, @NotNull Location loc) {
         POS1.put(player.getUniqueId(), new Vector(loc.getX(), loc.getY(), loc.getZ()));
-        player.sendMessage(Component.text("//pos1 " + loc.getBlock()) + " " + loc.getBlockY() + " " + loc.getBlockZ());
+        player.sendMessage(Component.text("//pos1 " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
         return checkAndDisplay(player);
     }
 
     public static boolean setPos2(@NotNull Player player, @NotNull Location loc) {
         POS2.put(player.getUniqueId(), new Vector(loc.getX(), loc.getY(), loc.getZ()));
-        player.sendMessage(Component.text("//pos2 " + loc.getBlock()) + " " + loc.getBlockY() + " " + loc.getBlockZ());
+        player.sendMessage(Component.text("//pos2 " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ()));
         return checkAndDisplay(player);
     }
 

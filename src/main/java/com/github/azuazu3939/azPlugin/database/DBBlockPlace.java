@@ -32,11 +32,11 @@ public class DBBlockPlace extends DBCon {
                 preparedStatement.setInt(4, set.z());
                 preparedStatement.setString(5, trigger);
                 preparedStatement.setInt(6, tick);
-                preparedStatement.setString(7,(material == null ? null : material.toString()));
+                preparedStatement.setString(7,(material == null ? null : material.name()));
 
                 preparedStatement.setString(8, trigger);
                 preparedStatement.setInt(9, tick);
-                preparedStatement.setString(10,(material == null ? null : material.toString()));
+                preparedStatement.setString(10,(material == null ? null : material.name()));
                 preparedStatement.execute();
                 setPlace(set);
             });
@@ -48,7 +48,7 @@ public class DBBlockPlace extends DBCon {
 
     @NotNull
     public static Optional<BlockPlaceAction> getLocationAction(@NotNull AbstractLocationSet set) {
-        if (PLACE_ACTION.containsKey(set)) {
+        if (!PLACE_ACTION.isEmpty() && PLACE_ACTION.containsKey(set)) {
             return Optional.of(PLACE_ACTION.get(set));
         } else {
             AzPlugin.getInstance().runAsync(()-> {
@@ -60,7 +60,7 @@ public class DBBlockPlace extends DBCon {
                         preparedStatement.setInt(4, set.z());
                         try (ResultSet rs = preparedStatement.executeQuery()) {
                             if (rs.next()) {
-                                Material material = rs.getString("material") == null ? null : Material.valueOf(rs.getString("material").toUpperCase());
+                                Material material = rs.getString("material") == null ? null : Material.getMaterial(rs.getString("material"));
                                 PLACE_ACTION.put(set, new BlockPlaceAction(
                                         rs.getInt("tick"),
                                         material,

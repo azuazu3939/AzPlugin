@@ -41,7 +41,7 @@ public class DBBlockInteract extends DBCon {
 
     @NotNull
     public static Optional<String> getLocationAction(@NotNull AbstractLocationSet set) {
-        if (INTERACT_ACTION.containsKey(set)) {
+        if (!INTERACT_ACTION.isEmpty() && INTERACT_ACTION.containsKey(set)) {
             return Optional.of(INTERACT_ACTION.get(set));
         } else {
             AzPlugin.getInstance().runAsync(() -> {

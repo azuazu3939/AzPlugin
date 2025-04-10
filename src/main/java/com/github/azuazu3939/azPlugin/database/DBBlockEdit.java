@@ -5,6 +5,7 @@ import com.github.azuazu3939.azPlugin.gimmick.records.BlockEditAction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
@@ -49,7 +50,7 @@ public class DBBlockEdit extends DBCon {
 
     @NotNull
     public static Optional<BlockEditAction> getBlockEditAction(String trigger) {
-        if (TEMP_EDIT.containsKey(trigger)) {
+        if (!TEMP_EDIT.isEmpty()  && TEMP_EDIT.containsKey(trigger)) {
             return Optional.of(TEMP_EDIT.get(trigger));
         } else {
             AzPlugin.getInstance().runAsync(() -> {
@@ -85,4 +86,8 @@ public class DBBlockEdit extends DBCon {
     }
 
     public static void clear() {TEMP_EDIT.clear();}
+
+    @NotNull
+    @Contract(pure = true)
+    public static Collection<String> get() {return TEMP_EDIT.keySet();}
 }

@@ -9,6 +9,7 @@ import com.github.azuazu3939.azPlugin.packet.PacketHandler;
 import com.github.azuazu3939.azPlugin.util.Utils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
@@ -23,22 +24,33 @@ import java.util.UUID;
 
 public abstract class Action {
 
-    private static final Multimap<UUID, BlockPos> packetBlocks = ArrayListMultimap.create();
+    private static final Multimap<UUID, BlockPos> packetBlocks = Multimaps.synchronizedListMultimap(ArrayListMultimap.create());
 
-    public static void load(@NotNull Player player, @NotNull BlockPos pos) {
+    public static void loadBreak(@NotNull Player player, @NotNull BlockPos pos) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
         if (set == null) return;
-        int i = DBCon.locationToInt(set);
-        if (i == 1) {
+        if (DBCon.locationToInt(set) == 1) {
             doBreak(player, set);
-        } else if (i == 2) {
+        }
+    }
+
+    public static void loadInteract(@NotNull Player player, @NotNull BlockPos pos) {
+        DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
+        if (set == null) return;
+        if (DBCon.locationToInt(set) == 2) {
             doInteract(player, set);
-        } else if (i == 3) {
+        }
+    }
+
+    public static void loadPlace(@NotNull Player player, @NotNull BlockPos pos) {
+        DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
+        if (set == null) return;
+        if (DBCon.locationToInt(set) == 3) {
             doPlace(player, set);
         }
     }
 
-    public static boolean isAffected(UUID uuid, BlockPos pos) {
+    public static synchronized boolean isAffected(UUID uuid, BlockPos pos) {
         if (pos == null) return false;
         if (packetBlocks.containsKey(uuid)) {
             for (BlockPos p : packetBlocks.get(uuid)) {
@@ -48,17 +60,17 @@ public abstract class Action {
         return false;
     }
 
-    protected static void cooldown(@NotNull Player player, BlockPos ps, @NotNull BlockBreakAction action) {
+    public static void cooldown(@NotNull Player player, BlockPos ps, @NotNull BlockBreakAction action) {
         AzPlugin.getInstance().runAsync(() ->
                 PacketHandler.changeBlock(player, ps, action.material()));
     }
 
-    protected static void put(UUID uuid, BlockPos pos, long tick) {
+    protected static synchronized void put(UUID uuid, BlockPos pos, long tick) {
         packetBlocks.put(uuid, pos);
         if (tick > 0) {
             AzPlugin.getInstance().runAsyncLater(()-> {
-                packetBlocks.remove(uuid, pos);
                 PacketHandler.undoEffected(Bukkit.getPlayer(uuid), pos);
+                AzPlugin.getInstance().runAsyncLater(()-> packetBlocks.remove(uuid, pos), 2);
             }, tick);
         }
     }
@@ -69,7 +81,7 @@ public abstract class Action {
         player.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 2f);
     }
 
-    public static void clear(@NotNull Player player) {
+    public static synchronized void clear(@NotNull Player player) {
         packetBlocks.removeAll(player.getUniqueId());
     }
 

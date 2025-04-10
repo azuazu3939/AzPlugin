@@ -4,9 +4,16 @@ import com.github.azuazu3939.azPlugin.commands.TempCommand;
 import com.github.azuazu3939.azPlugin.database.DBBlockInventory;
 import com.github.azuazu3939.azPlugin.gimmick.Action;
 import com.github.azuazu3939.azPlugin.gimmick.holder.RegisterAzHolder;
+import net.kyori.adventure.text.Component;
+import net.minecraft.core.BlockPos;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
@@ -29,8 +36,43 @@ public class PacketBlockListener implements Listener {
         Inventory inv = e.getInventory();
         if (inv.getHolder() instanceof RegisterAzHolder holder) {
             TempCommand.putShop(holder.getShopId(), holder.getInventory());
-            e.getPlayer().sendMessage("Shopの中身を設定しました。//createshop open " + holder.getShopId() + " で、編集できます");
+            e.getPlayer().sendMessage(Component.text("///temp inventory open " + holder.getShopId() + " で、編集できます"));
             DBBlockInventory.updateBlockInteractAsync(holder.getShopId(), inv, e.getView().getCursor());
         }
+    }
+
+    @EventHandler
+    public void onBreak(@NotNull BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+
+        Action.loadBreak(player, pos);
+    }
+
+    @EventHandler
+    public void onPlace(@NotNull BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+        Block place = event.getBlockAgainst();
+        BlockPos placePos = new BlockPos(place.getX(), place.getY(), place.getZ());
+
+        Action.loadPlace(player, pos);
+        Action.loadPlace(player, placePos);
+    }
+
+    @EventHandler
+    public void onInteract(@NotNull PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getClickedBlock();
+        if (block == null) return;
+        Block place = block.getRelative(event.getBlockFace());
+
+        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+        BlockPos placePos = new BlockPos(place.getX(), place.getY(), place.getZ());
+
+        Action.loadInteract(player, pos);
+        Action.loadInteract(player, placePos);
     }
 }

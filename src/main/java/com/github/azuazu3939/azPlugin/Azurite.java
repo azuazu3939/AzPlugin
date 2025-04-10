@@ -36,6 +36,7 @@ public final class Azurite {
             DBCon.init();
             DBCon.loadBreak();
             DBCon.loadInteract();
+            DBCon.loadPlace();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -47,7 +48,7 @@ public final class Azurite {
             DBBlockPlace.clear();
             DBBlockDrop.clear();
             DBBlockEdit.clear();
-        }, 6000L, 6000L);
+        }, 36000L, 36000L);
 
         Bukkit.getOnlinePlayers().forEach(player -> {
             new ManaRegen(player).start();

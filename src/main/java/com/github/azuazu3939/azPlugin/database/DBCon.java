@@ -68,14 +68,6 @@ public class DBCon {
                 "`material` varchar(64), \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
                 ")", PreparedStatement::execute);
-        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + DROP + "` (\n" +
-                "`trigger` varchar(64), \n" +
-                "`mmid` varchar(128) NOT NULL, \n" +
-                "`amount` tinyint,  \n" +
-                "`chance` double, \n" +
-                "PRIMARY KEY (`trigger`)\n" +
-                ")", PreparedStatement::execute);
-
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INTERACT + "` (\n" +
                 "`name` varchar(64) NOT NULL , \n" +
                 "`x` int, \n" +
@@ -84,13 +76,6 @@ public class DBCon {
                 "`shop` varchar(64) NOT NULL, \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n" +
                 ")", PreparedStatement::execute);
-        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INVENTORY + "` (\n" +
-                "`shop` varchar(64) NOT NULL , \n" +
-                "`item` mediumblob, \n" +
-                "`cursor` blob, \n" +
-                "PRIMARY KEY (`shop`)\n" +
-                ")", PreparedStatement::execute);
-
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + PLACE + "` (\n" +
                 "`name` varchar(64) NOT NULL, \n" +
                 "`x` int, \n" +
@@ -100,6 +85,19 @@ public class DBCon {
                 "`material` varchar(64), \n" +
                 "`tick` int DEFAULT 200, \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n " +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + DROP + "` (\n" +
+                "`trigger` varchar(64), \n" +
+                "`mmid` varchar(128) NOT NULL, \n" +
+                "`amount` tinyint,  \n" +
+                "`chance` double, \n" +
+                "PRIMARY KEY (`trigger`)\n" +
+                ")", PreparedStatement::execute);
+        runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + INVENTORY + "` (\n" +
+                "`shop` varchar(64) NOT NULL , \n" +
+                "`item` mediumblob, \n" +
+                "`cursor` blob, \n" +
+                "PRIMARY KEY (`shop`)\n" +
                 ")", PreparedStatement::execute);
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + EDIT + "` (\n" +
                 "`name` varchar(64) NOT NULL, \n" +
@@ -190,7 +188,7 @@ public class DBCon {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }, 100L);
+        }, 60L);
     }
 
     public static void loadInteract() {
@@ -207,22 +205,45 @@ public class DBCon {
                                     rs.getInt("y"),
                                     rs.getInt("z")),
                                     2);
-                        }AzPlugin.getInstance().getLogger().info("Success!! loaded interact system");
-
+                        }
+                        AzPlugin.getInstance().getLogger().info("Success!! loaded interact system");
                     }
                 });
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }, 200L);
+        }, 80L);
+    }
+
+    public static void loadPlace() {
+        AzPlugin.getInstance().runAsyncLater(() -> {
+            try {
+                runPrepareStatement("SELECT `name`, `x`, `y`, `z` FROM `" + PLACE + "`;", (preparedStatement) -> {
+                    try (ResultSet rs = preparedStatement.executeQuery()) {
+                        while (rs.next()) {
+                            World world = Bukkit.getWorld(rs.getString("name"));
+                            if (world == null) continue;
+                            LOCATION_SET.put(new AbstractLocationSet(
+                                            world,
+                                            rs.getInt("x"),
+                                            rs.getInt("y"),
+                                            rs.getInt("z")),
+                                    3);
+                        }
+                        AzPlugin.getInstance().getLogger().info("Success!! loaded place system");
+                    }
+                });
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }, 100L);
     }
 
     protected static void setInteract(AbstractLocationSet set) {
         LOCATION_SET.put(set, 2);
     }
 
-    protected static void setBreak(AbstractLocationSet set) {
-        LOCATION_SET.put(set, 1);
+    protected static void setBreak(AbstractLocationSet set) {LOCATION_SET.put(set, 1);
     }
 
     protected static void setPlace(AbstractLocationSet set) {LOCATION_SET.put(set, 3);}

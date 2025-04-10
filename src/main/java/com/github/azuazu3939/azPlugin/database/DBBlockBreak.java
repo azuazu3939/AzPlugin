@@ -32,11 +32,11 @@ public class DBBlockBreak extends DBCon {
                 preparedStatement.setInt(4, set.z());
                 preparedStatement.setString(5, trigger);
                 preparedStatement.setInt(6, tick);
-                preparedStatement.setString(7,(material == null ? null : material.toString()));
+                preparedStatement.setString(7,(material == null ? null : material.name()));
 
                 preparedStatement.setString(8, trigger);
                 preparedStatement.setInt(9, tick);
-                preparedStatement.setString(10,(material == null ? null : material.toString()));
+                preparedStatement.setString(10,(material == null ? null : material.name()));
                 preparedStatement.execute();
                 setBreak(set);
             });
@@ -48,7 +48,7 @@ public class DBBlockBreak extends DBCon {
 
     @NotNull
     public static Optional<BlockBreakAction> getLocationAction(@NotNull AbstractLocationSet set) {
-        if (BREAK_ACTION.containsKey(set)) {
+        if (!BREAK_ACTION.isEmpty() && BREAK_ACTION.containsKey(set)) {
             return Optional.of(BREAK_ACTION.get(set));
         } else {
             AzPlugin.getInstance().runAsync(()-> {
@@ -60,7 +60,7 @@ public class DBBlockBreak extends DBCon {
                         preparedStatement.setInt(4, set.z());
                         try (ResultSet rs = preparedStatement.executeQuery()) {
                             if (rs.next()) {
-                                Material material = rs.getString("material") == null ? null : Material.valueOf(rs.getString("material").toUpperCase());
+                                Material material = rs.getString("material") == null ? null : Material.getMaterial(rs.getString("material"));
                                 BREAK_ACTION.put(set, new BlockBreakAction(
                                         rs.getString("trigger"),
                                         rs.getInt("tick"),

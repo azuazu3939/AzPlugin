@@ -2,10 +2,12 @@ package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.gimmick.records.BlockDropAction;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,7 +33,7 @@ public class DBBlockDrop extends DBCon {
                 preparedStatement.setDouble(4, chance);
 
                 preparedStatement.setString(5, mmid);
-                preparedStatement.setDouble(6, amount);
+                preparedStatement.setInt(6, amount);
                 preparedStatement.setDouble(7, chance);
                 preparedStatement.execute();
                 TEMP_DROP.put(trigger, new BlockDropAction(mmid, amount, chance));
@@ -43,7 +45,7 @@ public class DBBlockDrop extends DBCon {
 
     @NotNull
     public static Optional<BlockDropAction> getBlockDropAction(String trigger) {
-        if (TEMP_DROP.containsKey(trigger)) {
+        if (!TEMP_DROP.isEmpty() && TEMP_DROP.containsKey(trigger)) {
             return Optional.of(TEMP_DROP.get(trigger));
         } else {
             AzPlugin.getInstance().runAsync(()-> {
@@ -71,4 +73,8 @@ public class DBBlockDrop extends DBCon {
     public static void clear() {
         TEMP_DROP.clear();
     }
+
+    @NotNull
+    @Contract(pure = true)
+    public static Collection<String> get() {return TEMP_DROP.keySet();}
 }

@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
 
 public class GoldenAxeListener implements Listener {
@@ -16,6 +17,7 @@ public class GoldenAxeListener implements Listener {
     public void onGoldenAxe(@NotNull PlayerInteractEvent event) {
         Player player = event.getPlayer();
         if (player.getInventory().getItemInMainHand().getType() != Material.GOLDEN_AXE) return;
+        if (event.getHand() == null || event.getHand() != EquipmentSlot.HAND) return;
         if (player.isSneaking()) return;
         if (!player.hasPermission("azplugin.command.pos1")) return;
 

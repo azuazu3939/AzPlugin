@@ -94,6 +94,7 @@ public class TempCommand implements TabExecutor {
                     } catch (NumberFormatException ignored) {}
                 }
                 DBBlockEdit.updateLocationAsync(SetCommandUtil.getLocations(player, box), tick, material, key);
+                player.sendMessage(Component.text("データの書き込みが終了しました。"));
                 return true;
             }
         }
@@ -129,6 +130,7 @@ public class TempCommand implements TabExecutor {
                }
 
                DBBlockDrop.updateLocationAsync(key, value, amount, chance);
+               player.sendMessage(Component.text("データの書き込みが終了しました。"));
                return true;
             }
         }
@@ -201,7 +203,7 @@ public class TempCommand implements TabExecutor {
         player.sendMessage(Component.text(""));
         player.sendMessage(Component.text("------------------------------------------------------------"));
         player.sendMessage(Component.text("**defineは、///pos1、///pos2でエリアを選択しておく必要があります**"));
-        player.sendMessage(Component.text("**editと、dropのcreateは、defineとは別で、///pos1、///pos2でエリアを選択しておく必要があります**"));
+        player.sendMessage(Component.text("**editのcreateは、defineとは別で、///pos1、///pos2でエリアを選択しておく必要があります**"));
         return true;
     }
 
@@ -256,30 +258,76 @@ public class TempCommand implements TabExecutor {
         }
         if (strings.length == 2) {
             String write = strings[0];
-            if (write.equalsIgnoreCase("inventory")) {
-                return List.of("create", "open");
-            } else if (write.equalsIgnoreCase("drop")) {
-                return List.of("create", "add");
-            } else if (write.equalsIgnoreCase("edit")) {
-                return List.of("create");
-            } else if (write.equalsIgnoreCase("define")) {
-                return List.of("inventory", "drop", "edit");
+            if (write.equalsIgnoreCase("inventory")) return List.of("create", "open");
+            if (write.equalsIgnoreCase("drop")) return List.of("create");
+            if (write.equalsIgnoreCase("edit")) return List.of("create");
+            if (write.equalsIgnoreCase("define")) return List.of("inventory", "drop", "edit");
+        }
+        if (strings.length == 3) {
+            String type = strings[0];
+            if (type.equalsIgnoreCase("inventory")) return DBBlockInventory.get().stream().toList();
+            if (type.equalsIgnoreCase("drop")) return DBBlockDrop.get().stream().toList();
+            if (type.equalsIgnoreCase("edit")) return DBBlockEdit.get().stream().toList();
+            if (type.equalsIgnoreCase("define")) {
+                String string = strings[1];
+                if (string.equalsIgnoreCase("inventory")) return DBBlockInventory.get().stream().toList();
+                if (string.equalsIgnoreCase("drop")) return DBBlockDrop.get().stream().toList();
+                if (string.equalsIgnoreCase("edit")) return DBBlockEdit.get().stream().toList();
             }
         }
+
         if (strings.length == 4) {
             String write = strings[0];
             String type = strings[1];
-            if (write.equalsIgnoreCase("drop")) {
-                if (type.equalsIgnoreCase("create"))
-                    return Arrays.stream(Material.values()).map(Enum::toString).toList();
-                if (type.equalsIgnoreCase("add"))
+            if (write.equalsIgnoreCase("drop") && type.equalsIgnoreCase("create")) {
+                String ss = strings[3];
+                if (ss.isBlank() || ss.isEmpty()) {
                     return MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList();
-
-                if (write.equalsIgnoreCase("edit") && type.equalsIgnoreCase("create")) {
-                    return Arrays.stream(Material.values()).map(Enum::toString).toList();
+                } else {
+                    List<String> sort = new ArrayList<>();
+                    new ArrayList<>(MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList())
+                            .stream().filter(m -> m.toUpperCase().contains(ss.toUpperCase()))
+                            .forEach(sort::add);
+                    return sort;
                 }
-                if (write.equalsIgnoreCase("define")) {
+            }
+            if (write.equalsIgnoreCase("edit") && type.equalsIgnoreCase("create")) {
+                String ss = strings[3];
+                if (ss.isBlank() || ss.isEmpty()) {
                     return Arrays.stream(Material.values()).map(Enum::toString).toList();
+                } else {
+                    List<String> sort = new ArrayList<>();
+                    new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList())
+                            .stream().filter(m -> m.contains(ss.toUpperCase()))
+                            .forEach(sort::add);
+                    return sort;
+                }
+            }
+            if (write.equalsIgnoreCase("define")) {
+                String ss = strings[3];
+                if (ss.isBlank() || ss.isEmpty()) {
+                    return Arrays.stream(Material.values()).map(Enum::toString).toList();
+                } else {
+                    List<String> sort = new ArrayList<>();
+                    new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList())
+                            .stream().filter(m -> m.contains(ss.toUpperCase()))
+                            .forEach(sort::add);
+                    return sort;
+                }
+            }
+        }
+        if (strings.length == 6) {
+            String write = strings[0];
+            if (write.equalsIgnoreCase("define")) {
+                String ss = strings[5];
+                if (ss.isBlank() || ss.isEmpty()) {
+                    return Arrays.stream(Material.values()).map(Enum::toString).toList();
+                } else {
+                    List<String> sort = new ArrayList<>();
+                    new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList())
+                            .stream().filter(m -> m.contains(ss.toUpperCase()))
+                            .forEach(sort::add);
+                    return sort;
                 }
             }
         }

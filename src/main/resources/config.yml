@@ -6,7 +6,6 @@ Colors:
 
 Database:
   #jdbc:mariadb
-  use: false
   scheme: jdbc:mysql
   host: localhost
   port: 3306
