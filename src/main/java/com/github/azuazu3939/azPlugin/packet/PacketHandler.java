@@ -8,7 +8,6 @@ import io.lumine.mythic.api.adapters.AbstractPlayer;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitBlock;
-import io.lumine.mythic.bukkit.adapters.BukkitPlayer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
@@ -86,9 +85,7 @@ public class PacketHandler {
                 )
         );
         Set<AbstractPlayer> sendPlayers = new HashSet<>();
-        multiPlayer.forEach(player -> {
-            sendPlayers.add(BukkitAdapter.adapt(player));
-        });
+        multiPlayer.forEach(player -> sendPlayers.add(BukkitAdapter.adapt(player)));
         MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendMultiBlockChange(
                 sendPlayers,
                 sendBlocks
