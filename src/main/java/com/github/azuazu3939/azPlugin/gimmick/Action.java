@@ -16,6 +16,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -42,12 +43,13 @@ public abstract class Action {
         }
     }
 
-    public static void loadPlace(@NotNull Player player, @NotNull BlockPos pos, @NotNull ItemStack itemInHand) {
+    public static boolean loadPlace(@NotNull Player player, @NotNull BlockPos pos, @NotNull ItemStack itemInHand) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
-        if (set == null) return;
+        if (set == null) return false;
         if (DBCon.locationToInt(set) == 3) {
-            doPlace(player, set, itemInHand);
+            return doMultiPlace(player, set, itemInHand);
         }
+        return false;
     }
 
     public static synchronized boolean isAffected(UUID uuid, BlockPos pos) {
@@ -128,15 +130,15 @@ public abstract class Action {
         ShowCaseBuilder.create(player, new BaseAzHolder(6, "§b§lショップ§f: " + op.get(), action.inv(), action.cursor()));
     }
 
-    protected static void doPlace(Player player, @NotNull DBCon.AbstractLocationSet set, ItemStack itemInHand) {
+    protected static boolean doMultiPlace(Player player, @NotNull DBCon.AbstractLocationSet set, ItemStack itemInHand) {
         Optional<BlockPlaceAction> op = DBBlockPlace.getLocationAction(set);
-        if (op.isEmpty()) return;
+        if (op.isEmpty()) return false;
 
         BlockPlaceAction ac = op.get();
-        if (!materialCheck(itemInHand, ac.material())) return;
+        if (!materialCheck(itemInHand, ac.material())) return false;
 
         Optional<BlockEditAction> op2 = DBBlockEdit.getBlockEditAction(ac.trigger());
-        if (op2.isEmpty()) return;
+        if (op2.isEmpty()) return false;
         BlockEditAction actions = op2.get();
 
         Set<BlockPos> poss = new HashSet<>();
@@ -151,6 +153,28 @@ public abstract class Action {
             PacketHandler.multiChangeBlock(player, list, poss, actions.material());
             if (actions.tick() > 0) {
                 put(list, poss, actions.tick());
+            }
+        }, 1);
+        return true;
+    }
+
+    public static void doPlace(@NotNull Player player, @NotNull Block pos, ItemStack itemInHand) {
+        DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
+        if (set == null) return;
+        if (DBCon.locationToInt(set) != 3) return;
+
+        Optional<BlockPlaceAction> op = DBBlockPlace.getLocationAction(set);
+        if (op.isEmpty()) return;
+
+        BlockPlaceAction ac = op.get();
+        if (!materialCheck(itemInHand, ac.material())) return;
+
+        Collection<Player> list = player.getLocation().getNearbyPlayers(64);
+        Collection<BlockPos> poss = Collections.singleton(new BlockPos(set.x(), set.y(), set.z()));
+        AzPlugin.getInstance().runAsyncLater(()-> {
+            PacketHandler.multiChangeBlock(player, list, poss, ac.material());
+            if (ac.tick() > 0) {
+                put(list, poss, ac.tick());
             }
         }, 1);
     }

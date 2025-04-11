@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class PacketBlockListener implements Listener {
@@ -53,13 +54,16 @@ public class PacketBlockListener implements Listener {
     @EventHandler
     public void onPlace(@NotNull BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        Block block = event.getBlock();
-        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
-        Block place = event.getBlockAgainst();
-        BlockPos placePos = new BlockPos(place.getX(), place.getY(), place.getZ());
+        ItemStack itemInHand = event.getItemInHand();
+        place(player, event.getBlock(), itemInHand);
+        if (place(player, event.getBlockAgainst(), itemInHand)) {
+            Action.doPlace(player, event.getBlockAgainst(), itemInHand);
+        }
+    }
 
-        Action.loadPlace(player, pos, event.getItemInHand());
-        Action.loadPlace(player, placePos, event.getItemInHand());
+    private boolean place(Player player, @NotNull Block block, ItemStack itemInHand) {
+        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+        return Action.loadPlace(player, pos, itemInHand);
     }
 
     @EventHandler
