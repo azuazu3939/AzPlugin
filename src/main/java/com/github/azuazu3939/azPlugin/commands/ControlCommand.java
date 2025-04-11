@@ -232,7 +232,7 @@ public class ControlCommand implements TabExecutor {
         }
 
         String mmid = strings.length >= 7 ? strings[6] : null;
-        ItemStack i = MythicBukkit.inst().getItemManager().getItemStack(mmid);
+        ItemStack i = mmid == null ? null : MythicBukkit.inst().getItemManager().getItemStack(mmid);
         if (i != null && !i.getType().isBlock()) {
             player.sendMessage(Component.text("そのmmidのマテリアルはブロックではありません。"));
             return false;
