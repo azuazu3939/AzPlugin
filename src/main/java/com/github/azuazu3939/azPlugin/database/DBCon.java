@@ -6,7 +6,6 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,6 +84,7 @@ public class DBCon {
                 "`trigger` varchar(64), \n " +
                 "`material` varchar(64), \n" +
                 "`tick` int DEFAULT 200, \n" +
+                "`mmid` varchar(128) NOT NULL, \n" +
                 "PRIMARY KEY (`name`, `x`, `y`, `z`)\n " +
                 ")", PreparedStatement::execute);
         runPrepareStatement("CREATE TABLE IF NOT EXISTS `" + DROP + "` (\n" +
@@ -128,13 +128,6 @@ public class DBCon {
     }
 
     @Contract(pure = true)
-    public static <R> R use(@NotNull SQLThrowableFunction<Connection, R> action) throws SQLException {
-        try (Connection connection = getConnection()) {
-            return action.apply(connection);
-        }
-    }
-
-    @Contract(pure = true)
     public static void use(@NotNull SQLThrowableConsumer<Connection> action) throws SQLException {
         try (Connection con = getConnection()) {
             action.accept(con);
@@ -146,24 +139,6 @@ public class DBCon {
         use(connection -> {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 action.accept(preparedStatement);
-            }
-        });
-    }
-
-    @Contract(pure = true)
-    public static <R> R getPrepareStatement(@Language("SQL") @NotNull String sql, @NotNull SQLThrowableFunction<PreparedStatement, R> action) throws SQLException {
-        return use(connection -> {
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                return action.apply(preparedStatement);
-            }
-        });
-    }
-
-    @Contract(pure = true)
-    public static void useStatement(@NotNull SQLThrowableConsumer<Statement> action) throws SQLException {
-        use(connection -> {
-            try (Statement statement = connection.createStatement()) {
-                action.accept(statement);
             }
         });
     }
