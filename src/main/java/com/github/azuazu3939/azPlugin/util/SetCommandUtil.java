@@ -27,7 +27,7 @@ public class SetCommandUtil {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
 
                     Block b = world.getBlockAt(x, y, z);
-                    if (b.getType() != material) continue;
+                    if (b.getType() != material && !b.getType().isEmpty()) continue;
                     locations.add(new DBCon.AbstractLocationSet(world, x, y, z));
                 }
             }

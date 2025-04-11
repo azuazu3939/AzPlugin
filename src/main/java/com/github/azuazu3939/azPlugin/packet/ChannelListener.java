@@ -6,12 +6,15 @@ import com.github.azuazu3939.azPlugin.gimmick.ShowCaseBuilder;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -75,8 +78,17 @@ public class ChannelListener extends ChannelDuplexHandler {
             }
 
         } else if (msg instanceof ServerboundPlayerActionPacket packet) {
+
             if (packet.getAction() == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
                 if (Action.isAffected(player.getUniqueId(), packet.getPos())) return;
+
+            } else if (packet.getAction() == ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK) {
+                BlockPos pos = packet.getPos();
+                Location loc = new Location(player.getWorld(),pos.getX(), pos.getY(), pos.getZ());
+                Block b = loc.getBlock();
+                if (b.getType().isEmpty())  {
+                    Action.loadBreak(player, pos);
+                }
             }
         }
         super.channelRead(ctx, msg);

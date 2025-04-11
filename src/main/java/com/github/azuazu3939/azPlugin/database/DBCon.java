@@ -1,6 +1,9 @@
 package com.github.azuazu3939.azPlugin.database;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
@@ -11,10 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DBCon {
 
@@ -27,7 +27,7 @@ public class DBCon {
     protected static String EDIT;
     protected static String DROP;
 
-    protected static final Map<AbstractLocationSet, Integer> LOCATION_SET = new ConcurrentHashMap<>();
+    protected static final Multimap<AbstractLocationSet, Integer> LOCATION_SET = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     public static void init() throws SQLException {
         if (!AzPlugin.getInstance().getConfig().getBoolean("Database.use")) return;
@@ -143,7 +143,7 @@ public class DBCon {
         });
     }
 
-    public static void loadBreak() {
+    public static synchronized void loadBreak() {
         AzPlugin.getInstance().runAsyncLater(() -> {
             try {
                 runPrepareStatement("SELECT `name`, `x`, `y`, `z` FROM `" + BREAK + "`;", (preparedStatement) -> {
@@ -167,7 +167,7 @@ public class DBCon {
         }, 60L);
     }
 
-    public static void loadInteract() {
+    public static synchronized void loadInteract() {
         AzPlugin.getInstance().runAsyncLater(() -> {
             try {
                 runPrepareStatement("SELECT `name`, `x`, `y`, `z` FROM `" + INTERACT + "`;", (preparedStatement) -> {
@@ -191,7 +191,7 @@ public class DBCon {
         }, 80L);
     }
 
-    public static void loadPlace() {
+    public static synchronized void loadPlace() {
         AzPlugin.getInstance().runAsyncLater(() -> {
             try {
                 runPrepareStatement("SELECT `name`, `x`, `y`, `z` FROM `" + PLACE + "`;", (preparedStatement) -> {
@@ -225,7 +225,7 @@ public class DBCon {
 
     @NotNull
     @Contract(value = " -> new", pure = true)
-    public static Map<AbstractLocationSet, Integer> getLocationSet() {return new HashMap<>(LOCATION_SET);}
+    public static Multimap<AbstractLocationSet, Integer> getLocationSet() {return LOCATION_SET;}
 
     public record AbstractLocationSet(World world, int x, int y, int z) {
 
@@ -248,8 +248,7 @@ public class DBCon {
         return null;
     }
 
-    public static int locationToInt(AbstractLocationSet set) {
-        if (LOCATION_SET.containsKey(set)) return LOCATION_SET.get(set);
-        return 0;
+    public static boolean locationToInt(AbstractLocationSet set, int i) {
+        return LOCATION_SET.containsEntry(set, i);
     }
 }

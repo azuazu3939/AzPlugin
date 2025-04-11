@@ -55,7 +55,7 @@ public class DBBlockEdit extends DBCon {
         } else {
             AzPlugin.getInstance().runAsync(() -> {
                 try {
-                    runPrepareStatement("SELECT `tick`, `material` FROM `" + EDIT + "` WHERE `trigger` =?", preparedStatement -> {
+                    runPrepareStatement("SELECT * FROM `" + EDIT + "` WHERE `trigger` =?", preparedStatement -> {
                         preparedStatement.setString(1, trigger);
                         try (ResultSet rs = preparedStatement.executeQuery()) {
 
@@ -67,7 +67,7 @@ public class DBBlockEdit extends DBCon {
                             while (rs.next()) {
                                 triggered = true;
                                 tick = rs.getInt("tick");
-                                m = (rs.getString("material") == null) ? Material.AIR : Material.valueOf(rs.getString("material").toUpperCase());
+                                m = (rs.getString("material") == null) ? Material.AIR : Material.getMaterial(rs.getString("material"));
                                 World w = Bukkit.getWorld(rs.getString("name"));
                                 if (w == null) continue;
                                 set.add(new AbstractLocationSet(w, rs.getInt("x"), rs.getInt("y"), rs.getInt("z")));

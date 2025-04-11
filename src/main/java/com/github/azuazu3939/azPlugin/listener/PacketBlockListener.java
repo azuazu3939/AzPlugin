@@ -6,6 +6,7 @@ import com.github.azuazu3939.azPlugin.gimmick.Action;
 import com.github.azuazu3939.azPlugin.gimmick.holder.RegisterAzHolder;
 import net.kyori.adventure.text.Component;
 import net.minecraft.core.BlockPos;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,9 +56,9 @@ public class PacketBlockListener implements Listener {
     public void onPlace(@NotNull BlockPlaceEvent event) {
         Player player = event.getPlayer();
         ItemStack itemInHand = event.getItemInHand();
-        place(player, event.getBlock(), itemInHand);
-        if (place(player, event.getBlockAgainst(), itemInHand)) {
-            Action.doPlace(player, event.getBlockAgainst(), itemInHand);
+        place(player, event.getBlockAgainst(), itemInHand);
+        if (place(player, event.getBlockPlaced(), itemInHand)) {
+            Action.doPlace(player, event.getBlockPlaced(), itemInHand);
         }
     }
 
@@ -69,11 +70,11 @@ public class PacketBlockListener implements Listener {
     @EventHandler
     public void onInteract(@NotNull PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        Block block = event.getClickedBlock();
-        if (block == null) return;
-        Block place = block.getRelative(event.getBlockFace());
+        Location loc = event.getInteractionPoint();
+        if (loc == null) return;
 
-        BlockPos pos = new BlockPos(block.getX(), block.getY(), block.getZ());
+        Block place = loc.getBlock().getRelative(event.getBlockFace());
+        BlockPos pos = new BlockPos(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         BlockPos placePos = new BlockPos(place.getX(), place.getY(), place.getZ());
 
         Action.loadInteract(player, pos);

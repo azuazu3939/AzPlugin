@@ -1,10 +1,10 @@
 package com.github.azuazu3939.azPlugin.packet;
 
 import com.github.azuazu3939.azPlugin.AzPlugin;
+import com.github.azuazu3939.azPlugin.gimmick.Action;
 import com.github.azuazu3939.azPlugin.gimmick.ShowCaseBuilder;
 import io.lumine.mythic.api.adapters.AbstractBlock;
 import io.lumine.mythic.api.adapters.AbstractLocation;
-import io.lumine.mythic.api.adapters.AbstractPlayer;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitBlock;
@@ -68,7 +68,7 @@ public class PacketHandler {
         p.getWorld().spawn(p.getLocation(), BlockDisplay.class);
     }
 
-    public static void changeBlock(Player p, @NotNull BlockPos pos, Material material) {
+    public static void changeBlock(@NotNull Player p, @NotNull BlockPos pos, Material material) {
         MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendBlockChange(
 
                 Collections.singleton(BukkitAdapter.adapt(p)),
@@ -76,20 +76,23 @@ public class PacketHandler {
                 new BukkitBlock(material));
     }
 
-    public static void multiChangeBlock(Player triggerPlayer, @NotNull Collection<Player> multiPlayer, @NotNull Collection<BlockPos> poss, Material material) {
-        Map<AbstractLocation, AbstractBlock> sendBlocks = new HashMap<>();
-        poss.forEach(pos ->
+    public static void multiChangeBlock(Player triggerPlayer, @NotNull Collection<Player> multiPlayer, @NotNull Collection<BlockPos> poss, Material material, int tick) {
+        multiPlayer.forEach(player -> {
+
+            Map<AbstractLocation, AbstractBlock> sendBlocks = new HashMap<>();
+            poss.forEach(pos -> {
+
+                if (Action.isAffected(player.getUniqueId(), pos) && Action.isPlaced(player.getUniqueId(), pos)) return;
                 sendBlocks.put(BukkitAdapter.adapt(
                         new Location(triggerPlayer.getWorld(), pos.getX(), pos.getY(), pos.getZ())),
-                        new BukkitBlock(material)
-                )
-        );
-        Set<AbstractPlayer> sendPlayers = new HashSet<>();
-        multiPlayer.forEach(player -> sendPlayers.add(BukkitAdapter.adapt(player)));
-        MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendMultiBlockChange(
-                sendPlayers,
-                sendBlocks
-        );
+                        new BukkitBlock(material));
+                Action.placed(player.getUniqueId(), pos, tick);
+            });
+            MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendMultiBlockChange(
+                    Collections.singleton(BukkitAdapter.adapt(player)),
+                    sendBlocks
+            );
+        });
     }
 
     public static void undoEffected(Player p, BlockPos pos) {

@@ -22,15 +22,18 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class Action {
 
     private static final Multimap<UUID, BlockPos> packetBlocks = Multimaps.synchronizedListMultimap(ArrayListMultimap.create());
+    private static final Multimap<UUID, BlockPos> breakBlocks = Multimaps.synchronizedListMultimap(ArrayListMultimap.create());
+    private static final Multimap<UUID, BlockPos> placeBlocks = Multimaps.synchronizedListMultimap(ArrayListMultimap.create());
 
     public static void loadBreak(@NotNull Player player, @NotNull BlockPos pos) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
         if (set == null) return;
-        if (DBCon.locationToInt(set) == 1) {
+        if (DBCon.locationToInt(set, 1)) {
             doBreak(player, set);
         }
     }
@@ -38,7 +41,7 @@ public abstract class Action {
     public static void loadInteract(@NotNull Player player, @NotNull BlockPos pos) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
         if (set == null) return;
-        if (DBCon.locationToInt(set) == 2) {
+        if (DBCon.locationToInt(set, 2) ) {
             doInteract(player, set);
         }
     }
@@ -46,20 +49,20 @@ public abstract class Action {
     public static boolean loadPlace(@NotNull Player player, @NotNull BlockPos pos, @NotNull ItemStack itemInHand) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
         if (set == null) return false;
-        if (DBCon.locationToInt(set) == 3) {
+        if (DBCon.locationToInt(set, 3)) {
             return doMultiPlace(player, set, itemInHand);
         }
         return false;
     }
 
-    public static synchronized boolean isAffected(UUID uuid, BlockPos pos) {
+    public static boolean isAffected(UUID uuid, BlockPos pos) {
         if (pos == null) return false;
-        if (packetBlocks.containsKey(uuid)) {
-            for (BlockPos p : packetBlocks.get(uuid)) {
-                if (p.equals(pos)) return true;
-            }
-        }
-        return false;
+        return packetBlocks.containsEntry(uuid, pos);
+    }
+
+    public static boolean isPlaced(UUID uuid, BlockPos pos) {
+        if (pos == null) return false;
+        return placeBlocks.containsEntry(uuid, pos);
     }
 
     public static void cooldown(@NotNull Player player, BlockPos ps, @NotNull BlockBreakAction action) {
@@ -101,10 +104,12 @@ public abstract class Action {
 
         BlockDropAction action = op2.get();
         BlockPos ps = new BlockPos(set.x(), set.y(), set.z());
-        if (isAffected(player.getUniqueId(), ps)) {
+        if (isAffected(player.getUniqueId(), ps) && breakBlocks.containsKey(player.getUniqueId())) {
             cooldown(player, ps, ac);
             return;
         }
+        breakBlocks.put(player.getUniqueId(), ps);
+        AzPlugin.getInstance().runAsyncLater(() -> breakBlocks.remove(player.getUniqueId(), ps), ac.tick());
 
         String mmid = action.mmid();
         Random ran = new Random();
@@ -136,23 +141,19 @@ public abstract class Action {
 
         BlockPlaceAction ac = op.get();
         if (!materialCheck(itemInHand, ac.material())) return false;
+        if (!mythicCheck(itemInHand, ac.mmid())) return false;
 
         Optional<BlockEditAction> op2 = DBBlockEdit.getBlockEditAction(ac.trigger());
         if (op2.isEmpty()) return false;
         BlockEditAction actions = op2.get();
 
-        Set<BlockPos> poss = new HashSet<>();
-        for (DBCon.AbstractLocationSet action : actions.set()) {
-            BlockPos pos = new BlockPos(action.x(), action.y(), action.z());
-            if (isAffected(player.getUniqueId(), pos)) continue;
-            poss.add(pos);
-        }
-
+        Collection<BlockPos> poss = actions.set().stream().map(s -> new BlockPos(s.x(), s.y(), s.z())).collect(Collectors.toSet());
         Collection<Player> list = player.getLocation().getNearbyPlayers(64);
+
         AzPlugin.getInstance().runAsyncLater(()-> {
-            PacketHandler.multiChangeBlock(player, list, poss, actions.material());
-            if (actions.tick() > 0) {
-                put(list, poss, actions.tick());
+            PacketHandler.multiChangeBlock(player, list, poss, ac.material(), ac.tick());
+            if (ac.tick() > 0) {
+                put(list, poss, ac.tick());
             }
         }, 1);
         return true;
@@ -161,7 +162,7 @@ public abstract class Action {
     public static void doPlace(@NotNull Player player, @NotNull Block pos, ItemStack itemInHand) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
         if (set == null) return;
-        if (DBCon.locationToInt(set) != 3) return;
+        if (!DBCon.locationToInt(set, 3)) return;
 
         Optional<BlockPlaceAction> op = DBBlockPlace.getLocationAction(set);
         if (op.isEmpty()) return;
@@ -172,14 +173,24 @@ public abstract class Action {
         Collection<Player> list = player.getLocation().getNearbyPlayers(64);
         Collection<BlockPos> poss = Collections.singleton(new BlockPos(set.x(), set.y(), set.z()));
         AzPlugin.getInstance().runAsyncLater(()-> {
-            PacketHandler.multiChangeBlock(player, list, poss, ac.material());
+            PacketHandler.multiChangeBlock(player, list, poss, ac.material(), ac.tick());
             if (ac.tick() > 0) {
                 put(list, poss, ac.tick());
             }
-        }, 1);
+        }, 2);
     }
 
     protected static boolean materialCheck(ItemStack itemInHand, Material material) {
         return itemInHand != null && itemInHand.getType() == material;
+    }
+
+    protected static boolean mythicCheck(ItemStack itemInHand, String mmid) {
+        if (mmid == null) return false;
+        return mmid.equals(MythicBukkit.inst().getItemManager().getMythicTypeFromItem(itemInHand));
+    }
+
+    public static void placed(UUID uuid, BlockPos pos, int tick) {
+        placeBlocks.put(uuid, pos);
+        AzPlugin.getInstance().runAsyncLater(() -> placeBlocks.remove(uuid, pos), tick);
     }
 }

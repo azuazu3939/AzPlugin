@@ -246,7 +246,7 @@ public class ControlCommand implements TabExecutor {
         return false;
     }
 
-    private boolean list(@NotNull Player player) {
+    private synchronized boolean list(@NotNull Player player) {
         DBCon.getLocationSet().forEach((key, value) -> {
 
             if (value == 1) {
@@ -304,9 +304,9 @@ public class ControlCommand implements TabExecutor {
         player.sendMessage(Component.text("///ctrl define edit [<edit_name>] [<filter_material>] <tick> <material> <check_mmid>"));
         player.sendMessage(Component.text(""));
         player.sendMessage(Component.text("------------------------------------------------------------"));
-        player.sendMessage(Component.text("**defineは、///pos1、///pos2でエリアを選択しておく必要があります**"));
-        player.sendMessage(Component.text("**editのcreateは、defineとは別で、///pos1、///pos2でエリアを選択しておく必要があります**"));
-        player.sendMessage(Component.text("**all_deleteはtrue/falseで、デフォルトはfalseです**"));
+        player.sendMessage(Component.text("※defineは、///pos1、///pos2でエリアを選択しておく必要があります"));
+        player.sendMessage(Component.text("※editのcreateは、defineとは別で、///pos1、///pos2でエリアを選択しておく必要があります"));
+        player.sendMessage(Component.text("※all_deleteはtrue/falseで、デフォルトはfalseです"));
         return true;
     }
 
