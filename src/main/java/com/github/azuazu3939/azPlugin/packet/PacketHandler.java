@@ -4,9 +4,11 @@ import com.github.azuazu3939.azPlugin.AzPlugin;
 import com.github.azuazu3939.azPlugin.gimmick.ShowCaseBuilder;
 import io.lumine.mythic.api.adapters.AbstractBlock;
 import io.lumine.mythic.api.adapters.AbstractLocation;
+import io.lumine.mythic.api.adapters.AbstractPlayer;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.adapters.BukkitBlock;
+import io.lumine.mythic.bukkit.adapters.BukkitPlayer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 import io.papermc.paper.adventure.PaperAdventure;
@@ -75,17 +77,21 @@ public class PacketHandler {
                 new BukkitBlock(material));
     }
 
-    public static void multiChangeBlock(Player p, @NotNull Collection<BlockPos> poss, Material material) {
-        Map<AbstractLocation, AbstractBlock> mp = new HashMap<>();
+    public static void multiChangeBlock(Player triggerPlayer, @NotNull Collection<Player> multiPlayer, @NotNull Collection<BlockPos> poss, Material material) {
+        Map<AbstractLocation, AbstractBlock> sendBlocks = new HashMap<>();
         poss.forEach(pos ->
-                mp.put(BukkitAdapter.adapt(
-                        new Location(p.getWorld(), pos.getX(), pos.getY(), pos.getZ())),
+                sendBlocks.put(BukkitAdapter.adapt(
+                        new Location(triggerPlayer.getWorld(), pos.getX(), pos.getY(), pos.getZ())),
                         new BukkitBlock(material)
                 )
         );
+        Set<AbstractPlayer> sendPlayers = new HashSet<>();
+        multiPlayer.forEach(player -> {
+            sendPlayers.add(BukkitAdapter.adapt(player));
+        });
         MythicBukkit.inst().getVolatileCodeHandler().getBlockHandler().sendMultiBlockChange(
-                Collections.singleton(BukkitAdapter.adapt(p)),
-                mp
+                sendPlayers,
+                sendBlocks
         );
     }
 

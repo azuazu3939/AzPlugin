@@ -20,9 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class Action {
 
@@ -75,6 +73,11 @@ public abstract class Action {
                 AzPlugin.getInstance().runAsyncLater(()-> packetBlocks.remove(uuid, pos), 2);
             }, tick);
         }
+    }
+    protected static void put(@NotNull Collection<Player> ps, @NotNull Collection<BlockPos> poss, long tick) {
+        ps.forEach(player ->
+                poss.forEach(pos ->
+                        put(player.getUniqueId(), pos, tick)));
     }
 
     protected static void dropItemStack(Player player, String mmid, @NotNull BlockDropAction action) {
@@ -136,17 +139,20 @@ public abstract class Action {
         if (op2.isEmpty()) return;
         BlockEditAction actions = op2.get();
 
+        Set<BlockPos> poss = new HashSet<>();
         for (DBCon.AbstractLocationSet action : actions.set()) {
             BlockPos pos = new BlockPos(action.x(), action.y(), action.z());
             if (isAffected(player.getUniqueId(), pos)) continue;
-
-            AzPlugin.getInstance().runAsyncLater(()-> {
-                PacketHandler.changeBlock(player, pos, actions.material());
-                if (actions.tick() > 0) {
-                    put(player.getUniqueId(), pos, actions.tick());
-                }
-            }, 1);
+            poss.add(pos);
         }
+
+        Collection<Player> list = player.getLocation().getNearbyPlayers(64);
+        AzPlugin.getInstance().runAsyncLater(()-> {
+            PacketHandler.multiChangeBlock(player, list, poss, actions.material());
+            if (actions.tick() > 0) {
+                put(list, poss, actions.tick());
+            }
+        }, 1);
     }
 
     protected static boolean materialCheck(ItemStack itemInHand, Material material) {
