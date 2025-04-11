@@ -14,8 +14,10 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import net.minecraft.core.BlockPos;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -42,11 +44,11 @@ public abstract class Action {
         }
     }
 
-    public static void loadPlace(@NotNull Player player, @NotNull BlockPos pos) {
+    public static void loadPlace(@NotNull Player player, @NotNull BlockPos pos, @NotNull ItemStack itemInHand) {
         DBCon.AbstractLocationSet set = DBCon.getLocationSet(new Location(player.getWorld(), pos.getX(), pos.getY(), pos.getZ()));
         if (set == null) return;
         if (DBCon.locationToInt(set) == 3) {
-            doPlace(player, set);
+            doPlace(player, set, itemInHand);
         }
     }
 
@@ -123,10 +125,13 @@ public abstract class Action {
         ShowCaseBuilder.create(player, new BaseAzHolder(6, "§b§lショップ§f: " + op.get(), action.inv(), action.cursor()));
     }
 
-    protected static void doPlace(Player player, @NotNull DBCon.AbstractLocationSet set) {
+    protected static void doPlace(Player player, @NotNull DBCon.AbstractLocationSet set, ItemStack itemInHand) {
         Optional<BlockPlaceAction> op = DBBlockPlace.getLocationAction(set);
         if (op.isEmpty()) return;
+
         BlockPlaceAction ac = op.get();
+        if (!materialCheck(itemInHand, ac.material())) return;
+
         Optional<BlockEditAction> op2 = DBBlockEdit.getBlockEditAction(ac.trigger());
         if (op2.isEmpty()) return;
         BlockEditAction actions = op2.get();
@@ -142,5 +147,9 @@ public abstract class Action {
                 }
             }, 1);
         }
+    }
+
+    protected static boolean materialCheck(ItemStack itemInHand, Material material) {
+        return itemInHand != null && itemInHand.getType() == material;
     }
 }

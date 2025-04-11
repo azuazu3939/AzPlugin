@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -103,9 +104,13 @@ public class ControlCommand implements TabExecutor {
                 Material material;
                 try {
                     material = Material.valueOf(place.toUpperCase());
+                    if (!material.isBlock()) {
+                        player.sendMessage(Component.text("そのマテリアルは設置不可です。"));
+                        return false;
+                    }
                 } catch (IllegalArgumentException e) {
                     player.sendMessage("そのマテリアル名は存在しません。");
-                    return true;
+                    return false;
                 }
 
                 int tick = 200;
@@ -199,9 +204,13 @@ public class ControlCommand implements TabExecutor {
         Material material;
         try {
             material = Material.valueOf(mat.toUpperCase());
+            if (!material.isBlock()) {
+                player.sendMessage(Component.text("そのマテリアルは設置不可です。"));
+                return false;
+            }
         } catch (IllegalArgumentException e) {
             player.sendMessage("そのマテリアル名は存在しません。");
-            return true;
+            return false;
         }
 
         int tick = 200;
@@ -215,12 +224,23 @@ public class ControlCommand implements TabExecutor {
         if (strings.length >= 6) {
             try {
                 m = Material.valueOf(strings[5].toUpperCase());
+                if (!m.isBlock()) {
+                    player.sendMessage(Component.text("そのマテリアルは設置不可です。"));
+                    return false;
+                }
             } catch (IllegalArgumentException ignored) {}
+        }
+
+        String mmid = strings.length >= 7 ? strings[6] : null;
+        ItemStack i = MythicBukkit.inst().getItemManager().getItemStack(mmid);
+        if (i != null && !i.getType().isBlock()) {
+            player.sendMessage(Component.text("そのmmidのマテリアルはブロックではありません。"));
+            return false;
         }
 
         if (checkPattern(player, id)) {
             if (type.equalsIgnoreCase("inventory")) return writeInteract(player, id, box, material);
-            if (type.equalsIgnoreCase("edit")) return writePlace(player, id, box, material, tick, m);
+            if (type.equalsIgnoreCase("edit")) return writePlace(player, id, box, material, tick, m, mmid);
             if (type.equalsIgnoreCase("drop")) return writeBreak(player, id, box, material, tick, m);
         }
         return false;
@@ -279,7 +299,9 @@ public class ControlCommand implements TabExecutor {
         player.sendMessage(Component.text("///ctrl edit delete [<edit_name>] <all_delete>"));
         player.sendMessage(Component.text("------------------------------------------------------------"));
         player.sendMessage(Component.text(""));
-        player.sendMessage(Component.text("///ctrl define [<inventory|drop|edit>] [<name_id>] [<filter_material>] <tick> <material>"));
+        player.sendMessage(Component.text("///ctrl define inventory [<shop_name>] [<filter_material>]"));
+        player.sendMessage(Component.text("///ctrl define drop [<drop_name>] [<filter_material>] <tick> <material>"));
+        player.sendMessage(Component.text("///ctrl define edit [<edit_name>] [<filter_material>] <tick> <material> <check_mmid>"));
         player.sendMessage(Component.text(""));
         player.sendMessage(Component.text("------------------------------------------------------------"));
         player.sendMessage(Component.text("**defineは、///pos1、///pos2でエリアを選択しておく必要があります**"));
@@ -305,12 +327,12 @@ public class ControlCommand implements TabExecutor {
         return true;
     }
 
-    private boolean writePlace(Player player, String key, BoundingBox box, Material material, int tick, Material m) {
+    private boolean writePlace(Player player, String key, BoundingBox box, Material material, int tick, Material m, String mmid) {
         AzPlugin.getInstance().runAsync(() -> {
             if (player == null) return;
             int i = 1;
             for (DBCon.AbstractLocationSet set : SetCommandUtil.getLocations(player, box, material)) {
-                AzPlugin.getInstance().runAsyncLater(()-> DBBlockPlace.updateLocationAsync(set, key, tick, m), i);
+                AzPlugin.getInstance().runAsyncLater(()-> DBBlockPlace.updateLocationAsync(set, key, tick, m, mmid), i);
                 i++;
             }
             AzPlugin.getInstance().runAsyncLater(()-> player.sendMessage(Component.text("データの書き込みが終了しました。")), i);
@@ -407,6 +429,21 @@ public class ControlCommand implements TabExecutor {
                     List<String> sort = new ArrayList<>();
                     new ArrayList<>(Arrays.stream(Material.values()).map(Enum::name).toList())
                             .stream().filter(m -> m.contains(ss.toUpperCase()))
+                            .forEach(sort::add);
+                    return sort;
+                }
+            }
+        }
+        if (strings.length == 7) {
+            String write = strings[0];
+            if (write.equalsIgnoreCase("define")) {
+                String ss = strings[6];
+                if (ss.isBlank() || ss.isEmpty()) {
+                    return MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList();
+                } else {
+                    List<String> sort = new ArrayList<>();
+                    new ArrayList<>(MythicBukkit.inst().getItemManager().getItems().stream().map(MythicItem::getInternalName).toList())
+                            .stream().filter(m -> m.toUpperCase().contains(ss.toUpperCase()))
                             .forEach(sort::add);
                     return sort;
                 }

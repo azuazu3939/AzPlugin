@@ -15,16 +15,16 @@ public class DBBlockPlace extends DBCon {
 
     private static final Map<AbstractLocationSet, BlockPlaceAction> PLACE_ACTION = new ConcurrentHashMap<>();
 
-    public static void updateLocationAsync(AbstractLocationSet set, String trigger, int tick, Material material) {
-        AzPlugin.getInstance().runAsync(()-> updateLocationSync(set, trigger, tick, material));
+    public static void updateLocationAsync(AbstractLocationSet set, String trigger, int tick, Material material, String mmid) {
+        AzPlugin.getInstance().runAsync(()-> updateLocationSync(set, trigger, tick, material, mmid));
     }
 
-    public static void updateLocationSync(AbstractLocationSet set, String trigger, int tick, Material material) {
+    public static void updateLocationSync(AbstractLocationSet set, String trigger, int tick, Material material, String mmid) {
         try {
             runPrepareStatement("INSERT INTO `" + PLACE +"` " +
-                    "(`name`, `x`, `y`, `z`, `trigger`, `tick`, `material`)" +
-                    " VALUES (?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
-                    "`trigger` =?, `tick` =?, `material` =?;", preparedStatement -> {
+                    "(`name`, `x`, `y`, `z`, `trigger`, `tick`, `material`, `mmid`)" +
+                    " VALUES (?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE " +
+                    "`trigger` =?, `tick` =?, `material` =?, `mmid` =?;", preparedStatement -> {
 
                 preparedStatement.setString(1, set.world().getName());
                 preparedStatement.setInt(2, set.x());
@@ -33,17 +33,19 @@ public class DBBlockPlace extends DBCon {
                 preparedStatement.setString(5, trigger);
                 preparedStatement.setInt(6, tick);
                 preparedStatement.setString(7,(material == null ? null : material.name()));
+                preparedStatement.setString(8, mmid);
 
-                preparedStatement.setString(8, trigger);
-                preparedStatement.setInt(9, tick);
-                preparedStatement.setString(10,(material == null ? null : material.name()));
+                preparedStatement.setString(9, trigger);
+                preparedStatement.setInt(10, tick);
+                preparedStatement.setString(11,(material == null ? null : material.name()));
+                preparedStatement.setString(12, mmid);
                 preparedStatement.execute();
                 setPlace(set);
             });
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        PLACE_ACTION.put(set, new BlockPlaceAction(tick, material, trigger));
+        PLACE_ACTION.put(set, new BlockPlaceAction(tick, material, trigger, mmid));
     }
 
     @NotNull
@@ -64,7 +66,8 @@ public class DBBlockPlace extends DBCon {
                                 PLACE_ACTION.put(set, new BlockPlaceAction(
                                         rs.getInt("tick"),
                                         material,
-                                        rs.getString("trigger")));
+                                        rs.getString("trigger"),
+                                        rs.getString("mmid")));
                             }
                         }
                     });

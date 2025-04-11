@@ -58,8 +58,8 @@ public class PacketBlockListener implements Listener {
         Block place = event.getBlockAgainst();
         BlockPos placePos = new BlockPos(place.getX(), place.getY(), place.getZ());
 
-        Action.loadPlace(player, pos);
-        Action.loadPlace(player, placePos);
+        Action.loadPlace(player, pos, event.getItemInHand());
+        Action.loadPlace(player, placePos, event.getItemInHand());
     }
 
     @EventHandler
